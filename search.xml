@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>1.md</title>
+    <url>/2026/09/01/1-md/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>RAG 增量更新</title>
     <url>/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/</url>
     <content><![CDATA[在面试中除了回答基础的rag的整体流程外还有关于rag的许多优化或使用问题。 其中更新就是最重要的一个点，在实际使用中rag中的知识不可能是不变的，……
