@@ -55,7 +55,7 @@ CREATE TABLE chunks (
 
 
 
-```sql
+```json
 {
   "chunk_id": "doc_123_chunk_5",
   "doc_id": "doc_123",
@@ -81,7 +81,7 @@ CREATE TABLE chunks (
 
 走正常流程添加即可。
 
-```sql
+```text
 监听到新文档（Webhook/定时扫描/手动上传）
     ↓
 ① 计算 content_hash，检查是否已存在（防重复）
@@ -105,7 +105,7 @@ CREATE TABLE chunks (
 
 修改推荐做文档级替换，不做chuck级替换
 
-```sql
+```text
 监听到文档变更（Webhook/定时扫描）
     ↓
 ① 拉取最新内容，计算新 content_hash
@@ -136,7 +136,7 @@ CREATE TABLE chunks (
 
 ## 4.删除文档
 
-```sql
+```text
 监听到文档删除
     ↓
 ① 标记 documents.status = 'deleted'（软删除，留审计记录）
