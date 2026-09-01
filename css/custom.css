@@ -1,0 +1,15 @@
+/* 自定义样式：仅替换首屏大字，不影响导航栏等其他位置的标题 */
+#site-info #site-title {
+  visibility: hidden;
+  position: relative;
+}
+
+#site-info #site-title::after {
+  content: "代码给我写好了啊";
+  visibility: visible;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
