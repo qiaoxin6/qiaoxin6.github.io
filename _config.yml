@@ -104,6 +104,14 @@ search:
   field: post
   content: true
 
+# 主题配置兜底（确保 search/darkmode 生效）
+theme_config:
+  search:
+    use: local_search
+  darkmode:
+    enable: true
+    button: true
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:

@@ -24,13 +24,7 @@ menu:
   分类: /categories/ || fas fa-folder-open
   关于: /about/ || fas fa-user
 
-# --------------------------------------
-# Local Search (本地搜索)
-# --------------------------------------
-local_search:
-  enable: true
-  preload: false
-  CDN:
+
 
 # --------------------------------------
 # Code Blocks Settings
@@ -483,7 +477,7 @@ math:
 search:
   # Choose: algolia_search / local_search / docsearch
   # leave it empty if you don't need search
-  use:
+  use: local_search
   placeholder:
 
   # Algolia Search
