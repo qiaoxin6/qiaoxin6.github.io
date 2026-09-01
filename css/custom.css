@@ -9,9 +9,20 @@
   visibility: visible;
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 33%;
   transform: translate(-50%, -50%);
   white-space: nowrap;
+  /* 响应式字号：窄屏自动缩小，保证文字始终完整 */
+  font-size: clamp(18px, 3.5vw, 40px);
+  max-width: 92vw;
+  /* 毛玻璃卡片 */
+  padding: 0.6em 1.2em;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 /* 代码块灰色主题：替换 darker 的近黑背景，保留彩色 token 高亮 */
