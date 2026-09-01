@@ -13,3 +13,17 @@
   transform: translate(-50%, -50%);
   white-space: nowrap;
 }
+
+/* 代码块灰色主题：替换 darker 的近黑背景，保留彩色 token 高亮 */
+:root {
+  --hl-bg: #3a3a3a;
+  --hl-color: #f2f2f2;
+  --hltools-bg: #333333;
+  --hltools-color: rgba(242, 242, 242, 0.85);
+}
+[data-theme='dark'] {
+  --hl-bg: #2e2e2e;
+  --hl-color: #f2f2f2;
+  --hltools-bg: #282828;
+  --hltools-color: rgba(242, 242, 242, 0.85);
+}
