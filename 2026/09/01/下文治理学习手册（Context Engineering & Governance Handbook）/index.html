@@ -1,0 +1,1322 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>上下文治理学习手册（Context Engineering &amp; Governance Handbook）.md | JOJO</title><meta name="author" content="Jo"><meta name="copyright" content="Jo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="上下文治理学习手册（Context Engineering &amp; Governance Handbook）这是一份可以从头读到尾、边读边动手的自学手册面向有工程背景、正在设计或维护 LLM Agent 的读者。全文 5 Part &#x2F; 16 模块，材料截至 2026-09。  0. 开篇：先建立正确的心智模型0.1 为什么”上下文”突然成了一门学问2023 年大家关心的是”怎么把一句">
+<meta property="og:type" content="article">
+<meta property="og:title" content="上下文治理学习手册（Context Engineering &amp; Governance Handbook）.md">
+<meta property="og:url" content="https://qiaoxin6.github.io/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&%20Governance%20Handbook%EF%BC%89/index.html">
+<meta property="og:site_name" content="JOJO">
+<meta property="og:description" content="上下文治理学习手册（Context Engineering &amp; Governance Handbook）这是一份可以从头读到尾、边读边动手的自学手册面向有工程背景、正在设计或维护 LLM Agent 的读者。全文 5 Part &#x2F; 16 模块，材料截至 2026-09。  0. 开篇：先建立正确的心智模型0.1 为什么”上下文”突然成了一门学问2023 年大家关心的是”怎么把一句">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qiaoxin6.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-09-01T16:04:27.000Z">
+<meta property="article:modified_time" content="2026-09-02T10:09:34.357Z">
+<meta property="article:author" content="Jo">
+<meta property="article:tag" content="agent">
+<meta property="article:tag" content="上下文工程">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qiaoxin6.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "上下文治理学习手册（Context Engineering & Governance Handbook）.md",
+  "url": "https://qiaoxin6.github.io/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&%20Governance%20Handbook%EF%BC%89/",
+  "image": "https://qiaoxin6.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-09-01T16:04:27.000Z",
+  "dateModified": "2026-09-02T10:09:34.357Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jo",
+      "url": "https://qiaoxin6.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://qiaoxin6.github.io/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '上下文治理学习手册（Context Engineering & Governance Handbook）.md',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">JOJO</span></a><a class="nav-page-title" href="/"><span class="site-name">上下文治理学习手册（Context Engineering &amp; Governance Handbook）.md</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">上下文治理学习手册（Context Engineering &amp; Governance Handbook）.md</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-01T16:04:27.000Z" title="发表于 2026-09-02 00:04:27">2026-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-02T10:09:34.357Z" title="更新于 2026-09-02 18:09:34">2026-09-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">16.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>53分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="上下文治理学习手册（Context-Engineering-Governance-Handbook）"><a href="#上下文治理学习手册（Context-Engineering-Governance-Handbook）" class="headerlink" title="上下文治理学习手册（Context Engineering &amp; Governance Handbook）"></a>上下文治理学习手册（Context Engineering &amp; Governance Handbook）</h1><p>这是一份可以<strong>从头读到尾、边读边动手</strong>的自学手册<br>面向有工程背景、正在设计或维护 LLM Agent 的读者。全文 <strong>5 Part &#x2F; 16 模块</strong>，材料截至 2026-09。</p>
+<hr>
+<h2 id="0-开篇：先建立正确的心智模型"><a href="#0-开篇：先建立正确的心智模型" class="headerlink" title="0. 开篇：先建立正确的心智模型"></a>0. 开篇：先建立正确的心智模型</h2><h3 id="0-1-为什么”上下文”突然成了一门学问"><a href="#0-1-为什么”上下文”突然成了一门学问" class="headerlink" title="0.1 为什么”上下文”突然成了一门学问"></a>0.1 为什么”上下文”突然成了一门学问</h3><p>2023 年大家关心的是”怎么把一句 prompt 写好”（Prompt Engineering）。到了 Agent 时代，模型不再一问一答，而是在一个 <strong>Agent Loop（智能体循环）</strong> 里反复工作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">读取上下文 → 模型推理 → 决定调用工具 → 工具返回结果 → 结果追加进上下文 → 再推理 → ……</span><br></pre></td></tr></table></figure>
+
+<p>关键事实是：<strong>每一轮，模型都要把”到目前为止的全部输入”重新读一遍</strong>。系统指令、工具定义、历史对话、工具返回、检索文档、长期记忆……全部拼在一起，重新过一次模型。于是问题从”一句话怎么写”变成了：</p>
+<ul>
+<li>这一轮窗口里<strong>到底该放什么、不放什么</strong>？</li>
+<li>信息越来越多、窗口快满了，<strong>该删什么、怎么压</strong>？</li>
+<li>哪些放前面、哪些放后面，模型才<strong>看得进去</strong>？</li>
+<li>多 Agent 之间上下文<strong>怎么隔离、怎么交接</strong>？</li>
+<li>外部网页&#x2F;工具返回的内容<strong>能不能信、会不会投毒</strong>？</li>
+<li>怎么证明你做的这些改动<strong>真的变好了、而不是看起来更好</strong>？</li>
+</ul>
+<p>这整套问题，就是 <strong>Context Engineering（上下文工程）</strong>；再叠加信任、审计、评估、成本，就是 <strong>Context Governance（上下文治理）</strong>。</p>
+<h3 id="0-2-一张总图：四块工作-五层窗口"><a href="#0-2-一张总图：四块工作-五层窗口" class="headerlink" title="0.2 一张总图：四块工作 + 五层窗口"></a>0.2 一张总图：四块工作 + 五层窗口</h3><p>学术界（arXiv:2507.13334）把上下文工程拆成三块，工业实践再加一块治理，构成全书主线：</p>
+<table>
+<thead>
+<tr>
+<th>板块</th>
+<th>回答的问题</th>
+<th>对应模块</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① Generation 生成</td>
+<td>信息从哪来、怎么进窗口（指令&#x2F;工具&#x2F;示例&#x2F;检索&#x2F;记忆）</td>
+<td>M3–M6</td>
+</tr>
+<tr>
+<td>② Processing 处理</td>
+<td>进来后怎么筛选、压缩、组织</td>
+<td>M7–M9</td>
+</tr>
+<tr>
+<td>③ Management 管理</td>
+<td>缓存、跨轮次&#x2F;跨 Agent 怎么维持</td>
+<td>M10–M13</td>
+</tr>
+<tr>
+<td>④ Governance 治理</td>
+<td>信任边界、可观测、评估、成本</td>
+<td>M14–M15</td>
+</tr>
+</tbody></table>
+<p>而这些信息最终在窗口里，按”变化速度 + 注意力位置”分成<strong>五层</strong>（M9 会细讲，先有个印象）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│ L0 稳定静态层  系统指令/工具定义（前缀缓存区，永不动）│</span><br><span class="line">│ L1 策略记忆层  长期记忆召回、用户画像、规范          │</span><br><span class="line">│ L2 按需检索层  RAG/代码库/文档（just-in-time 拉取） │</span><br><span class="line">│ L3 历史压缩层  远期对话与工具结果（摘要/截断后）      │</span><br><span class="line">│ L4 近期工作区  最近几轮原文、todo、scratchpad       │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>读后续章节时，不断回到这张图：任何一个技巧，都能归到”某一块工作 × 某一层窗口”。</p>
+<h3 id="0-3-贯穿全书的第一性原则"><a href="#0-3-贯穿全书的第一性原则" class="headerlink" title="0.3 贯穿全书的第一性原则"></a>0.3 贯穿全书的第一性原则</h3><p><strong>在每一轮，给模型恰好够用的、最小的一组高信号 token（smallest set of high-signal tokens）。</strong></p>
+<p>这句话有三个关键词，后面所有方法都是它的推论：</p>
+<ul>
+<li><strong>最小</strong>：多余 token 不只费钱，还会稀释注意力、引入污染（M2）；</li>
+<li><strong>高信号</strong>：信息要相关、可信、位置合理（M5&#x2F;M7&#x2F;M9）；</li>
+<li><strong>每一轮</strong>：上下文不是拼一次就完，而是每轮动态重新策划（M8&#x2F;M12）。</li>
+</ul>
+<h3 id="0-4-术语速查表（读全书前过一遍）"><a href="#0-4-术语速查表（读全书前过一遍）" class="headerlink" title="0.4 术语速查表（读全书前过一遍）"></a>0.4 术语速查表（读全书前过一遍）</h3><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Context Window</td>
+<td>模型单次能读入的 token 上限（含输入+预留输出）</td>
+</tr>
+<tr>
+<td>Token</td>
+<td>模型处理文本的最小单位，中文约 1 字 ≈ 1–2 token</td>
+</tr>
+<tr>
+<td>Agent Loop</td>
+<td>“推理-调工具-结果回灌”的反复循环</td>
+</tr>
+<tr>
+<td>Working Memory</td>
+<td>当前窗口内、模型这一轮”看得见”的全部内容</td>
+</tr>
+<tr>
+<td>State</td>
+<td>结构化的任务状态（区别于原始消息历史 History）</td>
+</tr>
+<tr>
+<td>Scratchpad</td>
+<td>模型自己的草稿区&#x2F;笔记，外置存储、需要时读回</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>临近窗口上限时，把历史高保真压缩、开新窗续跑</td>
+</tr>
+<tr>
+<td>Just-in-Time (JIT)</td>
+<td>窗口只留指针，运行时才用工具把内容读进来</td>
+</tr>
+<tr>
+<td>KV-Cache</td>
+<td>前缀复用的推理缓存，相同前缀可省算力省钱</td>
+</tr>
+<tr>
+<td>Handoff &#x2F; Sub-agent</td>
+<td>把任务（连同干净窗口）移交给子 Agent</td>
+</tr>
+<tr>
+<td>Harness</td>
+<td>包裹模型的运行时外壳（指令+工具+状态+压缩+审批等）</td>
+</tr>
+<tr>
+<td>NIAH</td>
+<td>Needle In A Haystack，大海捞针探针</td>
+</tr>
+<tr>
+<td>Context Rot</td>
+<td>输入越长、模型表现越差的退化现象</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="Part-I-·-原理与问题域"><a href="#Part-I-·-原理与问题域" class="headerlink" title="Part I · 原理与问题域"></a>Part I · 原理与问题域</h1><p>学工程技巧之前，必须先发自内心地相信”窗口是稀缺资源、塞太多会出事”。M1 建地图，M2 讲定律。</p>
+<h2 id="M1-概念地图：从-Prompt-Engineering-到-Context-Governance"><a href="#M1-概念地图：从-Prompt-Engineering-到-Context-Governance" class="headerlink" title="M1. 概念地图：从 Prompt Engineering 到 Context Governance"></a>M1. 概念地图：从 Prompt Engineering 到 Context Governance</h2><h3 id="1-1-三代范式到底差在哪"><a href="#1-1-三代范式到底差在哪" class="headerlink" title="1.1 三代范式到底差在哪"></a>1.1 三代范式到底差在哪</h3><ul>
+<li><strong>Prompt Engineering（提示工程）</strong>：假设一次调用、一段输入，核心手艺是”把这一次的话写好”——角色、指令、few-shot、格式。</li>
+<li><strong>Context Engineering（上下文工程）</strong>：假设一个长期运行的 Agent，核心手艺是”管理模型在<strong>每一步</strong>看到的全部状态”。它不仅包含写指令，还包括工具怎么给、历史怎么裁、检索怎么做、记忆怎么召回、窗口怎么压缩、多个 Agent 怎么隔离。</li>
+<li><strong>Context Governance（上下文治理）</strong>：在工程之上再问——这些信息<strong>来源可信吗、租户隔离了吗、改动可评估吗、成本可控吗、出了事能追溯吗</strong>？</li>
+</ul>
+<p>一个判断标准：Prompt 是”静态文本”，Context 是”动态装配的运行时状态”。同一个 Agent，第 1 轮和第 50 轮的上下文可能完全不同。</p>
+<h3 id="1-2-上下文的-8-类来源（做治理先要”盘家底”）"><a href="#1-2-上下文的-8-类来源（做治理先要”盘家底”）" class="headerlink" title="1.2 上下文的 8 类来源（做治理先要”盘家底”）"></a>1.2 上下文的 8 类来源（做治理先要”盘家底”）</h3><p>任何一次请求，拆开 payload，内容无非来自这 8 个地方：</p>
+<ol>
+<li><strong>系统指令</strong>（开发者写的规则、人设、流程）</li>
+<li><strong>工具 schema</strong>（每个可调用工具的名字、描述、参数定义——注意它也占 token）</li>
+<li><strong>few-shot 示例</strong>（给模型看的示范输入输出）</li>
+<li><strong>会话历史</strong>（此前的用户消息与助手回复）</li>
+<li><strong>工具结果</strong>（上一轮工具&#x2F;API&#x2F;代码执行返回的内容，往往是最大的 token 来源）</li>
+<li><strong>检索文档</strong>（RAG、知识库、MCP 服务、代码库读入的内容）</li>
+<li><strong>记忆召回</strong>（跨会话长期记忆里取出的事实、用户画像）</li>
+<li><strong>身份与权限</strong>（当前用户是谁、属于哪个租户、能做什么）</li>
+</ol>
+<p><strong>动手做一次”来源审计”</strong>：抓一个你自己 Agent 的真实请求，把每一段标上这 8 类标签，用 tokenizer 数每类占多少。绝大多数人第一次做都会惊讶地发现：系统指令只占零头，<strong>工具定义和工具结果才是吞 token 的大头</strong>。这一步是后面所有优化的基线。</p>
+<h3 id="1-3-学术三分框架（帮你把零散技巧归位）"><a href="#1-3-学术三分框架（帮你把零散技巧归位）" class="headerlink" title="1.3 学术三分框架（帮你把零散技巧归位）"></a>1.3 学术三分框架（帮你把零散技巧归位）</h3><ul>
+<li><strong>Generation（生成）</strong>：上下文从哪些渠道产生——prompt 生成、外部知识获取；</li>
+<li><strong>Processing（处理）</strong>：长序列怎么处理——筛选、重排、压缩、自我精炼、结构化整合；</li>
+<li><strong>Management（管理）</strong>：记忆层级、压缩策略、跨轮优化。</li>
+</ul>
+<p>学到任何新技巧（比如”把工具结果清掉””开个子 Agent”），都问一句：它属于生成、处理还是管理？归位之后，知识就不再是一堆散装 best practice。</p>
+<h3 id="1-4-本模块小结"><a href="#1-4-本模块小结" class="headerlink" title="1.4 本模块小结"></a>1.4 本模块小结</h3><p>上下文工程把”写 prompt”升级为”管理运行时状态”。先记住 8 类来源、四块工作、五层窗口这三张表，它们是全书的坐标系。</p>
+<hr>
+<h2 id="M2-有限注意力：上下文为什么会”失效”"><a href="#M2-有限注意力：上下文为什么会”失效”" class="headerlink" title="M2. 有限注意力：上下文为什么会”失效”"></a>M2. 有限注意力：上下文为什么会”失效”</h2><p>这是全书最重要的模块。后面所有”省 token、做压缩、开子 Agent”的技巧，理由都在这里。</p>
+<h3 id="2-1-Context-Rot：不是塞满才崩，是越长越钝"><a href="#2-1-Context-Rot：不是塞满才崩，是越长越钝" class="headerlink" title="2.1 Context Rot：不是塞满才崩，是越长越钝"></a>2.1 Context Rot：不是塞满才崩，是越长越钝</h3><p>2025 年 7 月 Chroma Research 用 18 个主流模型（含 GPT、Claude、Gemini、Qwen 系列）做了 5 组实验，结论反直觉但极其稳定：</p>
+<ol>
+<li><strong>所有模型</strong>都会随输入变长而表现下降；</li>
+<li><strong>即使是简单任务</strong>，输入变长也会降质——不是”难题才扛不住长文”；</li>
+<li>退化是<strong>非线性</strong>的，越往后掉得越快；</li>
+<li>有时把结构化长文<strong>随机打乱</strong>，效果反而更好——说明问题不只是”信息多”，而是”有序的长文本身在干扰注意力”。</li>
+</ol>
+<p>机理上有三股力量：</p>
+<ul>
+<li>注意力机制对序列长度的计算量是 <strong>n²</strong> 增长，信息越多，每个 token 分到的”注意力份额”越被稀释；</li>
+<li>模型训练时见到的序列长度分布偏短，超长区域是”没怎么练过的地带”；</li>
+<li>位置编码在外推到更长序列时需要插值，精度受损。</li>
+</ul>
+<p><strong>关键认知</strong>：退化是一道”渐变坡”，不是到了窗口上限才掉崖。也就是说，<strong>你以为还很空的 128K 窗口，可能在 30K 时模型就已经开始变钝了</strong>。</p>
+<h3 id="2-2-Lost-in-the-Middle：位置决定命运"><a href="#2-2-Lost-in-the-Middle：位置决定命运" class="headerlink" title="2.2 Lost in the Middle：位置决定命运"></a>2.2 Lost in the Middle：位置决定命运</h3><p>2023 年的经典研究（之后多代模型反复复现）：给模型 20 篇文档做问答，把”包含答案的那篇”放在不同位置。结果呈 <strong>U 型曲线</strong>：</p>
+<ul>
+<li>放在<strong>最前面</strong>（首因效应 primacy）和<strong>最后面</strong>（近因效应 recency），准确率最高；</li>
+<li>放在<strong>第 5–15 位的中段</strong>，准确率比首尾低 <strong>30 个百分点以上</strong>。</li>
+</ul>
+<p>工程含义非常直接：</p>
+<ul>
+<li>最重要、最稳定的规则放<strong>开头</strong>；</li>
+<li>当前最该关注的计划、待办、最新证据放<strong>结尾</strong>（M9 的 todo 复述法就利用这点）；</li>
+<li>别指望模型从一大段材料的正中间稳定捞出关键约束。</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2026/png/60786565/1788331445509-e4c6665c-a5b3-4af7-8bc2-0773f5f1b2a9.png" alt="img"></p>
+<h3 id="2-3-四类上下文污染（诊断任何”变笨”的通用分类法）"><a href="#2-3-四类上下文污染（诊断任何”变笨”的通用分类法）" class="headerlink" title="2.3 四类上下文污染（诊断任何”变笨”的通用分类法）"></a>2.3 四类上下文污染（诊断任何”变笨”的通用分类法）</h3><p>当 Agent 表现异常，先按这四类对号入座：</p>
+<table>
+<thead>
+<tr>
+<th>污染类型</th>
+<th>含义</th>
+<th>典型例子</th>
+<th>主要对策</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Poisoning 投毒</strong></td>
+<td>错误或过时的信息混进来</td>
+<td>网页里的恶意指令、过期的旧记忆</td>
+<td>信任隔离、写入关卡（M14）、记忆 TTL</td>
+</tr>
+<tr>
+<td><strong>Distraction 干扰</strong></td>
+<td>无关但无害的信息挤占注意力</td>
+<td>一次性塞 20 篇文档、冗余工具结果</td>
+<td>JIT 检索、预算与过滤（M5&#x2F;M7）</td>
+</tr>
+<tr>
+<td><strong>Confusion 混淆</strong></td>
+<td>多个相似内容难以区分</td>
+<td>两个名字几乎一样的工具&#x2F;函数</td>
+<td>工具去重、命名自解释（M4）</td>
+</tr>
+<tr>
+<td><strong>Clash 冲突</strong></td>
+<td>信息之间互相矛盾</td>
+<td>新记忆与旧记忆矛盾、两处规则打架</td>
+<td>结构化整合、冲突标注、以新替旧（M9）</td>
+</tr>
+</tbody></table>
+<h3 id="2-4-成本结构：为什么上下文是”输入密集型”开销"><a href="#2-4-成本结构：为什么上下文是”输入密集型”开销" class="headerlink" title="2.4 成本结构：为什么上下文是”输入密集型”开销"></a>2.4 成本结构：为什么上下文是”输入密集型”开销</h3><p>Agent 和聊天机器人有个巨大差异。以 Manus 这类生产 Agent 为例：</p>
+<ul>
+<li>单个任务平均约 <strong>50 次工具调用</strong>；</li>
+<li>输入 token : 输出 token ≈ <strong>100 : 1</strong>——绝大部分开销是”反复读入”，不是”生成”；</li>
+<li>而缓存命中的输入价格约为未缓存的 <strong>1&#x2F;10</strong>（某主流模型缓存输入 $0.30&#x2F;百万 token，未缓存 $3&#x2F;百万）。</li>
+</ul>
+<p>结论：<strong>Agent 的成本和延迟，主要由”每轮重读的上下文”决定</strong>。这就是为什么 M10 把 KV 缓存命中率称为”生产 Agent 最重要的单一指标”。</p>
+<h3 id="2-5-四组实证，帮你建立”少即是多”的信念"><a href="#2-5-四组实证，帮你建立”少即是多”的信念" class="headerlink" title="2.5 四组实证，帮你建立”少即是多”的信念"></a>2.5 四组实证，帮你建立”少即是多”的信念</h3><p>这些不是观点，是可复现的实验结论，做技术决策时可以直接引用：</p>
+<ol>
+<li><strong>保留全部历史是有害的，不只是浪费</strong>。微软一项长时程工具使用研究比较了多种历史策略：单纯剪枝（只留近期交互）比保留全历史<strong>少用 63.9% token，完成率反而高 8 个百分点</strong>；在剪枝基础上加一层轻量摘要，完成率再提升 12.6 个百分点（最优策略完成率 91.6%）。</li>
+<li>**主动压缩（ACON 类方法）**在三个长时程基准上把峰值 token 降低 <strong>26–54%</strong>，任务精度不降，有时去掉无关历史后反而更高；小模型尤其受益（某 14B 模型在两个基准上提升 32%&#x2F;46%）。</li>
+<li>**把”启动全量预载”改成”按需加载”**的内部实验：token 从约 45K 降到 12K，准确率从约 72% 升到 91%。</li>
+<li><strong>系统提示不是越长越好</strong>：经验上超过约 1,500 token 后边际收益明显递减，边缘情况更适合交给工具和按需检索，而不是堆进系统提示。</li>
+</ol>
+<h3 id="2-6-两种必备的”体检探针”"><a href="#2-6-两种必备的”体检探针”" class="headerlink" title="2.6 两种必备的”体检探针”"></a>2.6 两种必备的”体检探针”</h3><p>从现在起，把这两个探针当成 Agent 的常规体检项目（M15 会讲怎么工程化）：</p>
+<ul>
+<li><strong>Context-rot probe</strong>：准备一套固定测试题，在 8K&#x2F;32K&#x2F;128K 不同上下文长度下（用无害填充文本撑长）跑同一套题，画出”长度—正确率”曲线，找到<strong>你自己模型&#x2F;任务</strong>的性能拐点。</li>
+<li><strong>NIAH（大海捞针）探针</strong>：把一条已知事实插在窗口的不同深度（开头&#x2F;中段&#x2F;结尾），看模型能否稳定找出，验证 Lost-in-Middle 风险。</li>
+</ul>
+<h3 id="2-7-本模块小结"><a href="#2-7-本模块小结" class="headerlink" title="2.7 本模块小结"></a>2.7 本模块小结</h3><p>请把三句话刻进直觉：<strong>①更大的窗口不等于更强的能力；②信息放哪、放多少，本身就在影响结果；③删掉无关内容常常比增加内容更能提升表现。</strong> 带着这三句话进入 Part II。</p>
+<hr>
+<h1 id="Part-II-·-上下文生成：信息从哪来、怎么进窗口"><a href="#Part-II-·-上下文生成：信息从哪来、怎么进窗口" class="headerlink" title="Part II · 上下文生成：信息从哪来、怎么进窗口"></a>Part II · 上下文生成：信息从哪来、怎么进窗口</h1><p>生成层回答”8 类来源各自该怎么生产和供给”。本部分讲四类最需要设计的来源：指令与示例（M3）、工具（M4）、知识检索（M5）、记忆与状态（M6）。</p>
+<h2 id="M3-系统指令与示例的治理"><a href="#M3-系统指令与示例的治理" class="headerlink" title="M3. 系统指令与示例的治理"></a>M3. 系统指令与示例的治理</h2><h3 id="3-1-系统提示的”合适高度”（Right-Altitude）"><a href="#3-1-系统提示的”合适高度”（Right-Altitude）" class="headerlink" title="3.1 系统提示的”合适高度”（Right Altitude）"></a>3.1 系统提示的”合适高度”（Right Altitude）</h3><p>系统提示最常见的两种失败，是飞得太低和飞得太高：</p>
+<ul>
+<li><strong>太低（过度硬编码）</strong>：写成一堆脆弱的 if-else，”如果用户说 A 就做 B，如果说 C 就做 D”。这种提示一碰新情况就崩，而且越补越长，最后没人敢改。</li>
+<li><strong>太高（过度空泛）</strong>：只写”你是一个专业、友好、严谨的助手”。模型并不知道你的业务边界、输出格式、工作流程，只能靠猜。</li>
+</ul>
+<p><strong>合适高度</strong>是：讲清楚角色、目标、必须遵守的约束、输出契约、工作流程和”如何使用工具&#x2F;检索获取细节”，把易变的细节交给工具和按需检索，而不是穷举在提示里。</p>
+<p>工程上建议用<strong>结构化分区</strong>（XML 标签或 Markdown 标题），让模型能定位：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">role</span>&gt;</span></span>你是差旅报销审核助手<span class="language-xml"><span class="tag">&lt;/<span class="name">role</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">rules</span>&gt;</span></span></span><br><span class="line"><span class="bullet">1.</span> 只根据 <span class="language-xml"><span class="tag">&lt;<span class="name">policy</span>&gt;</span></span> 中的条款判断，不自行发明规则</span><br><span class="line"><span class="bullet">2.</span> 金额缺失时调用 lookup<span class="emphasis">_policy，不要猜测</span></span><br><span class="line"><span class="emphasis"><span class="language-xml"><span class="tag">&lt;/<span class="name">rules</span>&gt;</span></span></span></span><br><span class="line"><span class="emphasis"><span class="language-xml"><span class="tag">&lt;<span class="name">workflow</span>&gt;</span></span>先校验票据 → 再比对标准 → 最后给结论<span class="language-xml"><span class="tag">&lt;/<span class="name">workflow</span>&gt;</span></span></span></span><br><span class="line"><span class="emphasis"><span class="language-xml"><span class="tag">&lt;<span class="name">output</span>&gt;</span></span>返回 JSON：&#123;decision, reason, missing[]&#125;<span class="language-xml"><span class="tag">&lt;/<span class="name">output</span>&gt;</span></span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-最小充分原则：从”最强模型-最小提示”起跑"><a href="#3-2-最小充分原则：从”最强模型-最小提示”起跑" class="headerlink" title="3.2 最小充分原则：从”最强模型+最小提示”起跑"></a>3.2 最小充分原则：从”最强模型+最小提示”起跑</h3><p>正确的迭代方向是<strong>做减法起步、按失败模式增量补</strong>，而不是一上来写一大篇：</p>
+<ol>
+<li>先用尽量短的提示跑一批真实任务；</li>
+<li>收集失败案例，归纳出”缺了哪条信息才失败”；</li>
+<li>只补能覆盖一类失败的规则；</li>
+<li>每补一段，用评测确认它确实带来提升（否则删掉）。</li>
+</ol>
+<p>这样能避免”提示膨胀”。记住 M2 的经验值：<strong>系统提示超过约</strong> <strong>1,500 token</strong> <strong>后，继续加规则的边际收益快速递减，还会加剧 Context Rot。</strong></p>
+<h3 id="3-3-Few-shot-示例是需要”管理”的上下文资产"><a href="#3-3-Few-shot-示例是需要”管理”的上下文资产" class="headerlink" title="3.3 Few-shot 示例是需要”管理”的上下文资产"></a>3.3 Few-shot 示例是需要”管理”的上下文资产</h3><p>Few-shot 不是”多给几个例子总没错”，它有两个陷阱：</p>
+<ul>
+<li><strong>多样性陷阱</strong>：如果示例高度同构（比如连续 5 个例子都是”通过”的简历），模型会机械模仿这种模式，遇到反例也往同方向偏。要选<strong>覆盖不同分支、不同结果</strong>的典型正例。</li>
+<li><strong>数量陷阱</strong>：示例同样吃 token、同样稀释注意力。示例应该被<strong>动态选择</strong>（demonstration selection）：根据当前任务，从示例库里检索最相近的 2–4 个，而不是固定塞 20 个。</li>
+</ul>
+<h3 id="3-4-把提示当代码管理"><a href="#3-4-把提示当代码管理" class="headerlink" title="3.4 把提示当代码管理"></a>3.4 把提示当代码管理</h3><ul>
+<li><strong>版本化</strong>：系统提示进 Git，改动走评审，能回滚；</li>
+<li><strong>上下文消融实验（context ablation）</strong>：像做特征消融一样，逐段删除提示的某部分，跑评测看性能变化，找出”真正贡献性能的段落”和”纯心理安慰段落”；</li>
+<li><strong>提示与策略分离</strong>：稳定规则进系统提示，易变业务细节进检索&#x2F;配置，避免三天两头改提示导致缓存反复失效（M10）。</li>
+</ul>
+<h3 id="3-5-本模块小结"><a href="#3-5-本模块小结" class="headerlink" title="3.5 本模块小结"></a>3.5 本模块小结</h3><p>好系统提示 &#x3D; 合适高度（1500） + 结构化分区 + 最小充分 + 可消融验证；好示例 &#x3D; 典型多样 + 动态少量选择。把它们当有版本、可评测的工程资产。</p>
+<hr>
+<h2 id="M4-工具与动作空间治理（最被低估的上下文）"><a href="#M4-工具与动作空间治理（最被低估的上下文）" class="headerlink" title="M4. 工具与动作空间治理（最被低估的上下文）"></a>M4. 工具与动作空间治理（最被低估的上下文）</h2><h3 id="4-1-为什么工具定义是”隐形税”"><a href="#4-1-为什么工具定义是”隐形税”" class="headerlink" title="4.1 为什么工具定义是”隐形税”"></a>4.1 为什么工具定义是”隐形税”</h3><p>每注册一个工具，它的<strong>名字、描述、每个参数的说明</strong>都会进每一轮上下文。10 个工具可能还好，30 个、50 个工具（尤其接了一堆 MCP 服务后）会带来三重成本：</p>
+<ol>
+<li><strong>token 税</strong>：工具 schema 常驻 L0 层，每轮重读；</li>
+<li><strong>选择税</strong>：工具越多，模型选错工具、参数填错的概率越高（这正是 M2 的 Confusion 混淆污染）；</li>
+<li><strong>缓存税</strong>：工具集一变动，后面的前缀缓存全部失效（M10）。</li>
+</ol>
+<h3 id="4-2-好工具的四条设计准则"><a href="#4-2-好工具的四条设计准则" class="headerlink" title="4.2 好工具的四条设计准则"></a>4.2 好工具的四条设计准则</h3><ul>
+<li><strong>自包含</strong>：光看描述和参数名就知道干嘛、何时用，不需要读外部文档；</li>
+<li><strong>功能不重叠</strong>：两个工具能力边界模糊时，模型必然混用——能合并就合并；</li>
+<li><strong>命名自解释、成体系</strong>：用前缀分组，如 <code>browser_open / browser_click / shell_exec</code>；</li>
+<li><strong>参数无歧义</strong>：参数名、类型、枚举值、是否必填写清楚，避免模型靠猜填参。</li>
+</ul>
+<p>一句话：<strong>人都分不清的两个工具，模型更分不清。</strong></p>
+<h3 id="4-3-核心原则：Mask-don’t-remove（遮蔽，而不是删除）"><a href="#4-3-核心原则：Mask-don’t-remove（遮蔽，而不是删除）" class="headerlink" title="4.3 核心原则：Mask, don’t remove（遮蔽，而不是删除）"></a>4.3 核心原则：Mask, don’t remove（遮蔽，而不是删除）</h3><p>很多系统为了省 token，会在不同步骤<strong>动态增删工具</strong>：做 A 步时只挂 A 相关工具，做 B 步再换成 B 工具。Manus 在生产中发现这会造成两个严重问题：</p>
+<ol>
+<li><strong>击穿 KV 缓存</strong>：工具定义在稳定前缀里，一动，后面全部缓存作废，又慢又贵；</li>
+<li><strong>历史引用悬空 → 幻觉</strong>：早期轮次调用过 <code>tool_x</code>，后来 <code>tool_x</code> 被移除，模型在历史里看到自己调过一个”现在不存在的工具”，容易编造出错误的工具名或参数。</li>
+</ol>
+<p><strong>正确做法是”全集常驻、解码时遮蔽”</strong>：所有工具定义始终在上下文里（保缓存、保历史一致），但用一个<strong>状态机</strong>决定”当前状态允许调用哪些”，并通过**约束解码（constrained decoding &#x2F; response prefill）**在模型生成动作的那一刻把不允许的工具”mask 掉”。三种授权状态：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>含义</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>auto</code></td>
+<td>模型可自由选择调不调工具、调哪个</td>
+<td>常规推理步</td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>这一步必须调用某个工具（不许纯文本糊弄）</td>
+<td>强制走动作</td>
+</tr>
+<tr>
+<td><code>specified</code></td>
+<td>这一步只能调用指定的某个工具</td>
+<td>状态机锁定下一步</td>
+</tr>
+</tbody></table>
+<p>配合命名前缀，状态机可以一句话授权&#x2F;禁用一整组（如”本步只允许 <code>browser_*</code>“）。</p>
+<h3 id="4-4-层级化动作空间：把工具定义”移出窗口”"><a href="#4-4-层级化动作空间：把工具定义”移出窗口”" class="headerlink" title="4.4 层级化动作空间：把工具定义”移出窗口”"></a>4.4 层级化动作空间：把工具定义”移出窗口”</h3><p>当动作实在太多，用三层结构控制窗口内常驻的工具数量：</p>
+<ul>
+<li><strong>L1 原子工具（常驻窗口）</strong>：只保留少量最通用的原语，如 <code>read_file / write_file / run_bash / search</code>；</li>
+<li><strong>L2 沙箱程序（经 L1 调用，不占窗口）</strong>：grep、ffmpeg、git、各类 MCP CLI 等成百上千个能力，模型通过 <code>run_bash(&quot;grep ...&quot;)</code> 来用，<strong>它们的详细说明不必进上下文</strong>，需要时查 <code>--help</code> 或文档；</li>
+<li><strong>L3 动态脚本（运行时生成）</strong>：模型现写一段脚本完成一次性复杂操作，用完即弃。</li>
+</ul>
+<p>这样，窗口里永远只有 L1 的几个工具定义，却能撬动 L2&#x2F;L3 的巨大动作空间。</p>
+<h3 id="4-5-Tool-Description-Engineering"><a href="#4-5-Tool-Description-Engineering" class="headerlink" title="4.5 Tool Description Engineering"></a>4.5 Tool Description Engineering</h3><p>工具描述是”写给模型看的 API 文档”，值得像写产品文案一样打磨：写清”<strong>什么时候用 &#x2F; 什么时候别用 &#x2F; 一个最小示例</strong>“。描述质量直接影响调用正确率，而且它在 L0 层，改一次要评估缓存影响。</p>
+<h3 id="4-6-本模块小结"><a href="#4-6-本模块小结" class="headerlink" title="4.6 本模块小结"></a>4.6 本模块小结</h3><p>工具是高成本上下文：精简去重、命名成系；<strong>用 mask 状态机而不是动态增删</strong>；用 L1&#x2F;L2&#x2F;L3 层级把海量能力移出窗口；把工具描述当一等文档打磨。</p>
+<hr>
+<h2 id="M5-知识供给：RAG、Just-in-Time-与渐进披露"><a href="#M5-知识供给：RAG、Just-in-Time-与渐进披露" class="headerlink" title="M5. 知识供给：RAG、Just-in-Time 与渐进披露"></a>M5. 知识供给：RAG、Just-in-Time 与渐进披露</h2><h3 id="5-1-两种供给哲学：推理前检索-vs-运行时取用"><a href="#5-1-两种供给哲学：推理前检索-vs-运行时取用" class="headerlink" title="5.1 两种供给哲学：推理前检索 vs 运行时取用"></a>5.1 两种供给哲学：推理前检索 vs 运行时取用</h3><ul>
+<li><strong>Pre-inference RAG（推理前检索）</strong>：在调用模型前，先用 embedding 检索一批文档塞进上下文。适合”任务一开始就明确需要、且范围可预估”的知识。</li>
+<li><strong>Just-in-Time（JIT，运行时取用）</strong>：<strong>窗口里只放”指针”</strong>（文件路径、URL、数据库查询、符号名），模型在推理过程中判断”我现在需要看这个文件”，再调用读取工具把真正内容拉进来。</li>
+</ul>
+<p>JIT 是 Agent 区别于传统 RAG 的关键能力：Agent 可以<strong>多轮、按需、带着最新的问题去取数</strong>，而不是开局赌一把检索对不对。M2 的实证里，把全量预载改成按需，token 从 ~45K 降到 ~12K，准确率反而从 ~72% 升到 ~91%。</p>
+<h3 id="5-2-渐进披露（Progressive-Disclosure）：像人用文件系统一样"><a href="#5-2-渐进披露（Progressive-Disclosure）：像人用文件系统一样" class="headerlink" title="5.2 渐进披露（Progressive Disclosure）：像人用文件系统一样"></a>5.2 渐进披露（Progressive Disclosure）：像人用文件系统一样</h3><p>不要一上来读全文，而是分层展开：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">第一层：只看目录/元数据（文件名、大小、修改时间、函数名列表）</span><br><span class="line">   → 判断哪些可能相关</span><br><span class="line">第二层：读相关文件的摘要/符号签名/章节标题</span><br><span class="line">   → 锁定具体位置</span><br><span class="line">第三层：才读真正需要的那一段原文</span><br></pre></td></tr></table></figure>
+
+<p>代码场景尤其典型：先看目录树和符号表，再看某个函数签名，最后才读函数体。这与 M4 的 <strong>L2”用 –help 代替把手册塞进窗口”是同一个思想。</strong></p>
+<h3 id="5-3-混合策略：不是二选一"><a href="#5-3-混合策略：不是二选一" class="headerlink" title="5.3 混合策略：不是二选一"></a>5.3 混合策略：不是二选一</h3><p>成熟系统按<strong>数据变化速度</strong>决定策略：</p>
+<table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>变化速度</th>
+<th>策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编码规范、合规铁律、CLAUDE.md&#x2F;AGENTS.md</td>
+<td>慢、全局适用</td>
+<td>启动预载（放 L0&#x2F;L1）</td>
+</tr>
+<tr>
+<td>项目结构、索引、符号表</td>
+<td>中</td>
+<td>预载轻量索引，详情 JIT</td>
+</tr>
+<tr>
+<td>具体文档、代码正文、网页内容</td>
+<td>快、体量大</td>
+<td>只放指针，运行时 JIT</td>
+</tr>
+<tr>
+<td>一次性 API 返回</td>
+<td>极快</td>
+<td>用完即进入压缩&#x2F;清理（M8）</td>
+</tr>
+</tbody></table>
+<h3 id="5-4-代码库上下文的专门做法"><a href="#5-4-代码库上下文的专门做法" class="headerlink" title="5.4 代码库上下文的专门做法"></a>5.4 代码库上下文的专门做法</h3><ul>
+<li>建<strong>仓库索引</strong>：AST、依赖图、符号表、调用关系，供模型先”看地图”；</li>
+<li>codebase RAG：按符号&#x2F;代码块做语义检索，而不是把整文件灌进去；</li>
+<li>用 <code>glob/grep</code> 做精确导航，语义检索做模糊定位，两者配合；</li>
+<li>读到的代码进入 L2&#x2F;L4，用完按 M8 规则清理，只留”读过哪些文件”的指针。</li>
+</ul>
+<h3 id="5-5-查询增强与五种”拉取”机制"><a href="#5-5-查询增强与五种”拉取”机制" class="headerlink" title="5.5 查询增强与五种”拉取”机制"></a>5.5 查询增强与五种”拉取”机制</h3><ul>
+<li><strong>Query Augmentation</strong>：检索前用当前任务状态改写 query（带上已知实体、约束、上一步结论），检索质量显著高于拿用户原话直接搜。</li>
+<li>学术上把”模型主动拉信息进窗口”归纳为五种机制，对照检查你的 Agent 缺哪种：</li>
+</ul>
+<ol>
+<li>scratchpad retrieval（取回自己的草稿）</li>
+<li>memory retrieval（取回长期记忆）</li>
+<li>tool search（搜索&#x2F;发现工具）</li>
+<li>knowledge retrieval（RAG&#x2F;知识库）</li>
+<li>demonstration selection（取回 few-shot 示例）</li>
+</ol>
+<h3 id="5-6-本模块小结"><a href="#5-6-本模块小结" class="headerlink" title="5.6 本模块小结"></a>5.6 本模块小结</h3><p>能用指针就别放全文；用渐进披露逐层放大；按数据变化速度混合预载与 JIT；代码场景走”索引→签名→正文”三级。让模型在<strong>需要的那一刻</strong>拿到<strong>恰好够用</strong>的知识。</p>
+<hr>
+<h2 id="M6-记忆与外部状态作为上下文来源（接口层）"><a href="#M6-记忆与外部状态作为上下文来源（接口层）" class="headerlink" title="M6. 记忆与外部状态作为上下文来源（接口层）"></a>M6. 记忆与外部状态作为上下文来源（接口层）</h2><p>本模块只讲”记忆&#x2F;状态<strong>以什么形态进窗口</strong>“。记忆怎么写、怎么遗忘、组件怎么选，见《记忆》手册。</p>
+<h3 id="6-1-三种”过去的信息”，三种进窗形态"><a href="#6-1-三种”过去的信息”，三种进窗形态" class="headerlink" title="6.1 三种”过去的信息”，三种进窗形态"></a>6.1 三种”过去的信息”，三种进窗形态</h3><ul>
+<li><strong>会话历史（短期）</strong>：以消息序列形式存在 L3&#x2F;L4，远期的被压缩、近期的保留原文（M8）；</li>
+<li><strong>长期记忆（跨会话）</strong>：以”事实块&#x2F;用户画像&#x2F;经验条目”形式，经检索后注入 L1，通常带时间、来源、置信度；</li>
+<li><strong>结构化工作状态（State）</strong>：以 typed object 形式存在（如 <code>{done:[], todo:[], vars:{}}</code>），是对历史的提炼，而非流水账。</li>
+</ul>
+<h3 id="6-2-关键区分：History-≠-State"><a href="#6-2-关键区分：History-≠-State" class="headerlink" title="6.2 关键区分：History ≠ State"></a>6.2 关键区分：History ≠ State</h3><p>这是初学者最容易混的点。看个对比例子：</p>
+<ul>
+<li><strong>History（流水账）</strong>：<code>用户说要订机票 → 我查了三个航班 → 用户选了第二个 → 我调用支付失败 ……</code>（十几条消息）</li>
+<li><strong>State（提炼态）</strong>：<code>{行程: 北京-上海 9-15, 已选航班: MU5102, 支付状态: 失败待重试, 待办: [换卡重试]}</code></li>
+</ul>
+<p>State 用几个字段就承载了历史里的有效信息，<strong>token 极省、且不会随轮次膨胀</strong>。Google ADK 明确把 Session（事件历史）、State（会话工作记忆）、MemoryService（跨会话长期记忆）分成三层，就是这个道理。</p>
+<h3 id="6-3-记忆召回也要”预算-过滤”"><a href="#6-3-记忆召回也要”预算-过滤”" class="headerlink" title="6.3 记忆召回也要”预算 + 过滤”"></a>6.3 记忆召回也要”预算 + 过滤”</h3><p>长期记忆不是”召回得越多越好”：</p>
+<ul>
+<li>召回的旧事实若与当前任务无关，就是 M2 说的 <strong>Distraction 干扰污染</strong>；</li>
+<li>若与现状矛盾（用户已经换了部门，记忆里还是旧部门），就是 <strong>Clash 冲突污染</strong>；</li>
+<li>因此记忆召回同样受 M7 预算约束：设条数&#x2F;token 上限、按相关性和时间衰减排序、冲突时以新替旧并标注。</li>
+</ul>
+<h3 id="6-4-画出”注入时序图”"><a href="#6-4-画出”注入时序图”" class="headerlink" title="6.4 画出”注入时序图”"></a>6.4 画出”注入时序图”</h3><p>学完本部分，建议画一张你自己 Agent 的<strong>单轮注入时序图</strong>：按时间顺序标出——哪些来源在会话开始时一次性拼好（静态、可缓存），哪些是每轮动态追加（历史、工具结果），哪些是运行中按需拉取（JIT 检索、记忆）。这张图会直接指导 M9 的五层布局和 M10 的缓存设计。</p>
+<h3 id="6-5-本模块小结"><a href="#6-5-本模块小结" class="headerlink" title="6.5 本模块小结"></a>6.5 本模块小结</h3><p>历史走压缩、状态走提炼、长期记忆走检索注入；三者形态不同、预算不同；记忆召回必须过滤，否则就是污染。</p>
+<hr>
+<h1 id="Part-III-·-上下文处理与管理：窗口内的运维"><a href="#Part-III-·-上下文处理与管理：窗口内的运维" class="headerlink" title="Part III · 上下文处理与管理：窗口内的运维"></a>Part III · 上下文处理与管理：窗口内的运维</h1><p>信息要进窗口了，本部分解决四件事：给每类信息分多少额度（M7）、装不下怎么压（M8）、怎么摆放让模型看得进（M9）、怎么让每轮重放又快又省（M10）。这是全书工程密度最高的部分。</p>
+<h2 id="M7-Token-预算与上下文选择"><a href="#M7-Token-预算与上下文选择" class="headerlink" title="M7. Token 预算与上下文选择"></a>M7. Token 预算与上下文选择</h2><h3 id="7-1-先算账，再装配：动态预算公式"><a href="#7-1-先算账，再装配：动态预算公式" class="headerlink" title="7.1 先算账，再装配：动态预算公式"></a>7.1 先算账，再装配：动态预算公式</h3><p>不要等”超窗报错”才处理。每次装配前先算一笔确定的账：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">动态预算 = 模型总窗口</span><br><span class="line">         − 固定成本（系统提示 + 工具 schema + few-shot）</span><br><span class="line">         − 输出预留（模型要生成的最大 token）</span><br><span class="line">         − 安全边际（tokenizer 估算误差，建议留 8%–10%）</span><br></pre></td></tr></table></figure>
+
+<p>举例：128K 窗口，固定成本 12K，输出预留 8K，安全边际 10K，则可动态分配给”检索+历史+记忆”的额度约 98K。<strong>这笔账每轮都要算</strong>，因为工具结果会让占用动态变化。</p>
+<h3 id="7-2-分层配额：固定层不驱逐，弹性层按规则裁剪"><a href="#7-2-分层配额：固定层不驱逐，弹性层按规则裁剪" class="headerlink" title="7.2 分层配额：固定层不驱逐，弹性层按规则裁剪"></a>7.2 分层配额：固定层不驱逐，弹性层按规则裁剪</h3><p>把 8 类来源映射到”层”，每层设 token cap 和超限驱逐（eviction）策略。一张可直接套用的示例配额表（按你的模型窗口等比缩放）：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>预算类型</th>
+<th>示例 cap</th>
+<th>超限策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System 系统指令</td>
+<td>固定</td>
+<td>4K</td>
+<td>永不驱逐，走 prompt cache</td>
+</tr>
+<tr>
+<td>Tools 工具定义</td>
+<td>固定</td>
+<td>6K</td>
+<td>按使用频率&#x2F;状态机 mask（M4）</td>
+</tr>
+<tr>
+<td>Memory 记忆召回</td>
+<td>弹性</td>
+<td>6K</td>
+<td>按相关分+时间衰减截断</td>
+</tr>
+<tr>
+<td>Knowledge 检索</td>
+<td>弹性</td>
+<td>20K</td>
+<td>按相关性分数截断</td>
+</tr>
+<tr>
+<td>Conversation 历史</td>
+<td>弹性</td>
+<td>30K</td>
+<td>滑窗 + 摘要压缩（M8）</td>
+</tr>
+<tr>
+<td>Output reserve 输出预留</td>
+<td>固定</td>
+<td>8K</td>
+<td>——</td>
+</tr>
+<tr>
+<td>Safety buffer 安全边际</td>
+<td>固定</td>
+<td>10K</td>
+<td>防估算溢出</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>固定层</strong>（System&#x2F;Tools）：每轮都在、位置不变，是缓存命中的前提（M10）；</li>
+<li><strong>弹性层</strong>（Memory&#x2F;Knowledge&#x2F;Conversation）：此消彼长，按优先级和分数裁剪；</li>
+<li><strong>安全边际</strong>必不可少：tokenizer 对中文、代码、特殊符号的估算都有误差，不留余量会在生产上偶发超窗。</li>
+</ul>
+<h3 id="7-3-一个最小-ContextAssembler（伪代码）"><a href="#7-3-一个最小-ContextAssembler（伪代码）" class="headerlink" title="7.3 一个最小 ContextAssembler（伪代码）"></a>7.3 一个最小 ContextAssembler（伪代码）</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ContextAssembler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, total=<span class="number">128_000</span>, out_reserve=<span class="number">8_000</span>, safety=<span class="number">10_000</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.total, <span class="variable language_">self</span>.out_reserve, <span class="variable language_">self</span>.safety = total, out_reserve, safety</span><br><span class="line">        <span class="comment"># 层 -&gt; (cap, 裁剪函数)</span></span><br><span class="line">        <span class="variable language_">self</span>.layers = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dynamic_budget</span>(<span class="params">self, fixed_cost</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.total - fixed_cost - <span class="variable language_">self</span>.out_reserve - <span class="variable language_">self</span>.safety</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">assemble</span>(<span class="params">self, candidates: <span class="built_in">dict</span></span>):</span><br><span class="line">        fixed = count(candidates[<span class="string">&quot;system&quot;</span>]) + count(candidates[<span class="string">&quot;tools&quot;</span>])</span><br><span class="line">        pool = <span class="variable language_">self</span>.dynamic_budget(fixed)           <span class="comment"># 弹性层总池子</span></span><br><span class="line">        result = &#123;<span class="string">&quot;system&quot;</span>: candidates[<span class="string">&quot;system&quot;</span>], <span class="string">&quot;tools&quot;</span>: candidates[<span class="string">&quot;tools&quot;</span>]&#125;</span><br><span class="line">        <span class="comment"># 按优先级依次填充弹性层，超 cap 就用对应 eviction 裁剪</span></span><br><span class="line">        <span class="keyword">for</span> name <span class="keyword">in</span> [<span class="string">&quot;memory&quot;</span>, <span class="string">&quot;knowledge&quot;</span>, <span class="string">&quot;conversation&quot;</span>]:</span><br><span class="line">            cap = <span class="variable language_">self</span>.layers[name].cap</span><br><span class="line">            trimmed = <span class="variable language_">self</span>.layers[name].evict(candidates[name], cap)</span><br><span class="line">            result[name] = trimmed</span><br><span class="line">            pool -= count(trimmed)</span><br><span class="line">            <span class="keyword">assert</span> pool &gt;= <span class="number">0</span>, <span class="string">&quot;弹性层超支，需进一步压缩&quot;</span></span><br><span class="line">        result[<span class="string">&quot;bill&quot;</span>] = &#123;k: count(v) <span class="keyword">for</span> k, v <span class="keyword">in</span> result.items()&#125;  <span class="comment"># token 账单</span></span><br><span class="line">        <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+
+<p>关键产物是最后那张 <strong>token 账单</strong>：每轮记录每层实际占用，它既是 M15 看板的数据源，也是你定位”谁在吞窗口”的依据。</p>
+<h3 id="7-4-选择与过滤：不是检索到什么放什么"><a href="#7-4-选择与过滤：不是检索到什么放什么" class="headerlink" title="7.4 选择与过滤：不是检索到什么放什么"></a>7.4 选择与过滤：不是检索到什么放什么</h3><ul>
+<li><strong>相关性打分 + rerank</strong>：初检索召回放宽，进窗口前用交叉编码器&#x2F;重排模型精排，只留 top-k；</li>
+<li><strong>去重与冲突处理</strong>：重复内容合并，矛盾内容标注时间、以新替旧（治 Clash）；</li>
+<li><strong>防止”检索吃光预算”</strong>：最常见的翻车是检索文档返回一大堆，把系统指令和近期历史挤到边缘。配额表就是硬约束。</li>
+</ul>
+<h3 id="7-5-上下文消融：量化每类来源的边际贡献"><a href="#7-5-上下文消融：量化每类来源的边际贡献" class="headerlink" title="7.5 上下文消融：量化每类来源的边际贡献"></a>7.5 上下文消融：量化每类来源的边际贡献</h3><p>像调特征一样调上下文：准备固定评测集，分别”去掉记忆 &#x2F; 去掉检索 &#x2F; 去掉 few-shot &#x2F; 历史只留 5 轮”，看成功率与成本变化。你会发现有些来源<strong>去掉后几乎不掉点甚至涨点</strong>——那就是该砍的 Distraction。</p>
+<h3 id="7-6-本模块小结"><a href="#7-6-本模块小结" class="headerlink" title="7.6 本模块小结"></a>7.6 本模块小结</h3><p>先算动态预算，每部分上下文来源都计划好占用大小，不一股脑进入上下文。</p>
+<hr>
+<h2 id="M8-上下文压缩-Compaction（核心中的核心）"><a href="#M8-上下文压缩-Compaction（核心中的核心）" class="headerlink" title="M8. 上下文压缩 Compaction（核心中的核心）"></a>M8. 上下文压缩 Compaction（核心中的核心）</h2><h3 id="8-1-压缩策略谱：从最粗暴到最精细"><a href="#8-1-压缩策略谱：从最粗暴到最精细" class="headerlink" title="8.1 压缩策略谱：从最粗暴到最精细"></a>8.1 压缩策略谱：从最粗暴到最精细</h3><p>按”信息损失风险从低到高 &#x2F; 实现从简单到复杂”排列：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>做法</th>
+<th>适用</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>从头删</td>
+<td>丢掉最老的消息</td>
+<td>早期内容确实无用</td>
+<td>易丢”后验关键”信息</td>
+</tr>
+<tr>
+<td>滑动窗口</td>
+<td>只保留最近 N 轮原文</td>
+<td>强局部依赖任务</td>
+<td>丢失长期目标</td>
+</tr>
+<tr>
+<td>保首尾</td>
+<td>留开头目标+近期过程，删中段</td>
+<td>对抗 lost-in-middle</td>
+<td>中段细节丢失</td>
+</tr>
+<tr>
+<td>按重要性</td>
+<td>打分保留关键条目</td>
+<td>有关键性信号</td>
+<td>打分器本身可能错</td>
+</tr>
+<tr>
+<td>摘要替换</td>
+<td>用摘要替换远期原文</td>
+<td>通用主力方案</td>
+<td>摘要有损、会漂移</td>
+</tr>
+<tr>
+<td>混合</td>
+<td>近期原文 + 远期摘要</td>
+<td><strong>生产首选</strong></td>
+<td>实现稍复杂</td>
+</tr>
+</tbody></table>
+<h3 id="8-2-Compaction-的标准流程与调优顺序"><a href="#8-2-Compaction-的标准流程与调优顺序" class="headerlink" title="8.2 Compaction 的标准流程与调优顺序"></a>8.2 Compaction 的标准流程与调优顺序</h3><p>当占用逼近阈值（如 80%），触发压缩：</p>
+<ol>
+<li>冻结当前历史，生成一份<strong>高保真摘要</strong>（保留目标、已做决策、关键变量、未完成事项、踩过的坑）；</li>
+</ol>
+<p>如何压缩生成摘要？ 待研究</p>
+<ol>
+<li>用”系统指令 + 摘要 + 最近若干轮原文”开一个新窗口继续；</li>
+<li>原始历史归档到外部存储（不删，留指针，见 8.5）。</li>
+</ol>
+<p><strong>调优铁律：先最大化 Recall，再提 Precision。</strong></p>
+<ul>
+<li>第一阶段先追求”别丢东西”（Recall）：列一张信息点清单，检查摘要是否覆盖；宁可啰嗦也不能漏关键约束；</li>
+<li>Recall 达标后，第二阶段再追求”精炼”（Precision）：删冗余、压字数。</li>
+<li>顺序不能反：一上来追求简短，极易把”当时看着没用、后来至关重要”的细节压没。压缩 prompt 要在<strong>真实复杂 trace</strong>上调，不要用玩具对话调。</li>
+</ul>
+<h3 id="8-3-最轻量、最先该做的：Tool-result-clearing"><a href="#8-3-最轻量、最先该做的：Tool-result-clearing" class="headerlink" title="8.3 最轻量、最先该做的：Tool-result clearing"></a>8.3 最轻量、最先该做的：Tool-result clearing</h3><p>Agent 最大的 token 来源是工具结果，而<strong>深层历史里的工具结果通常不再需要原文</strong>：</p>
+<ul>
+<li>第 N-10 轮那次搜索返回的 3000 字 JSON，第 N 轮几乎不会再逐字用；</li>
+<li>可以直接清空其内容、只留一句”已调用 search，结果摘要：……（详见归档 #id）”；</li>
+<li>平台能力（如 Anthropic Context Editing）会自动清理陈旧的 tool call&#x2F;result；SWE-Agent 的做法是除最近 5 条观察外，每条历史观察压成一行。</li>
+</ul>
+<p>这是<strong>投入产出比最高</strong>的压缩：实现简单、收益巨大、风险可控，应作为第一道手段，摘要 compaction 作为第二道。</p>
+<h3 id="8-4-主动压缩：别等撞墙"><a href="#8-4-主动压缩：别等撞墙" class="headerlink" title="8.4 主动压缩：别等撞墙"></a>8.4 主动压缩：别等撞墙</h3><p>被动压缩是”到 95% 才压”，此时窗口已经很钝（M2 的渐变坡）。更优的是<strong>前瞻&#x2F;主动压缩（如 ACON 类思路）</strong>：根据任务阶段和增长速率，在峰值到来前就压缩，把占用维持在健康区间。实证显示可降 26–54% 峰值 token 且不掉精度。</p>
+<h3 id="8-5-可恢复压缩：删内容，但一定留指针（最重要的设计观）"><a href="#8-5-可恢复压缩：删内容，但一定留指针（最重要的设计观）" class="headerlink" title="8.5 可恢复压缩：删内容，但一定留指针（最重要的设计观）"></a>8.5 可恢复压缩：删内容，但一定留指针（最重要的设计观）</h3><p>压缩研究把失败分成三类：</p>
+<ol>
+<li><strong>信息丢失</strong>：关键细节在压缩时被判定为无用而删掉，后来却需要；</li>
+<li><strong>压缩损坏</strong>：摘要本身写错、张冠李戴；</li>
+<li><strong>压缩后可访问性失败（F3）</strong>：信息其实没丢，但模型想用时<strong>取不回来、无法重建</strong>。</li>
+</ol>
+<p>第 3 类尤其隐蔽，而它的解法非常明确——<strong>可恢复压缩（recoverable compression）</strong>：</p>
+<p>压缩时只从窗口移除”内容本体”，但保留能找回它的<strong>指针</strong>：网页留 URL、文档留文件路径、数据库记录留主键、原始 trace 留归档 ID。需要时模型用工具按指针取回。</p>
+<p>这就是 Manus”<strong>把文件系统当最终上下文</strong>“的思想：文件系统近乎无限、持久、Agent 可读写；窗口里放摘要和指针，细节随时可恢复。<strong>永远不要做不可逆压缩。</strong></p>
+<h3 id="8-6-多轮压缩的漂移问题，以及对策"><a href="#8-6-多轮压缩的漂移问题，以及对策" class="headerlink" title="8.6 多轮压缩的漂移问题，以及对策"></a>8.6 多轮压缩的漂移问题，以及对策</h3><p>摘要再被摘要、压缩套压缩，误差会逐轮累积，像”复印件的复印件”，最终目标漂移。对策：</p>
+<ul>
+<li><strong>维护一份持久状态文档，增量合并而非每次重摘</strong>：新产生的信息 merge 进同一份结构化 summary，而不是把上一版摘要再整体概括一遍。有研究在 3.6 万条真实工程会话上发现，增量合并在准确率、完整性、连续性上都优于”逐字历史”和”每次重新摘要”；</li>
+<li>摘要里固定保留结构化字段（目标&#x2F;决策&#x2F;变量&#x2F;todo&#x2F;失败记录），减少自由发挥；</li>
+<li>定期用归档原文对摘要做一致性校验。</li>
+</ul>
+<h3 id="8-7-本模块小结"><a href="#8-7-本模块小结" class="headerlink" title="8.7 本模块小结"></a>8.7 本模块小结</h3><p>先用 tool-result clearing，再上”近期原文+远期摘要”的混合 compaction；调优先 Recall 后 Precision；主动压缩维持健康占用；<strong>一切压缩可恢复（留指针、归档不删）</strong>；用增量合并对抗多轮漂移。</p>
+<hr>
+<h2 id="M9-组织、排序与注意力塑形"><a href="#M9-组织、排序与注意力塑形" class="headerlink" title="M9. 组织、排序与注意力塑形"></a>M9. 组织、排序与注意力塑形</h2><h3 id="9-1-五层布局：把对的东西放在对的层"><a href="#9-1-五层布局：把对的东西放在对的层" class="headerlink" title="9.1 五层布局：把对的东西放在对的层"></a>9.1 五层布局：把对的东西放在对的层</h3><p>回到开篇的五层窗口，现在给出每层的放置原则和”可变性”：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>放什么</th>
+<th>位置</th>
+<th>可变性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L0 稳定静态层</td>
+<td>系统指令、工具 schema、输出格式</td>
+<td>最前</td>
+<td>几乎不变（保缓存）</td>
+</tr>
+<tr>
+<td>L1 策略记忆层</td>
+<td>长期记忆召回、用户画像、全局规范</td>
+<td>前部</td>
+<td>会话级变化</td>
+</tr>
+<tr>
+<td>L2 按需检索层</td>
+<td>当前步检索到的文档&#x2F;代码</td>
+<td>中部</td>
+<td>每步变化</td>
+</tr>
+<tr>
+<td>L3 历史压缩层</td>
+<td>远期对话&#x2F;工具结果摘要+指针</td>
+<td>中后部</td>
+<td>压缩后变化</td>
+</tr>
+<tr>
+<td>L4 近期工作区</td>
+<td>最近几轮原文、todo、scratchpad</td>
+<td>最后</td>
+<td>每轮变化</td>
+</tr>
+</tbody></table>
+<p>这样布局同时满足三个目标：L0 稳定→缓存高命中（M10）；重要规则在首、当前焦点在尾→顺应 U 型注意力（M2）；动态内容集中在中后部→改动不影响前缀缓存。</p>
+<h3 id="9-2-利用首因与近因，主动”塑形”注意力"><a href="#9-2-利用首因与近因，主动”塑形”注意力" class="headerlink" title="9.2 利用首因与近因，主动”塑形”注意力"></a>9.2 利用首因与近因，主动”塑形”注意力</h3><ul>
+<li><strong>首因（开头）</strong>：放稳定、全局、必须始终遵守的内容；</li>
+<li><strong>近因（结尾）</strong>：放<strong>此刻</strong>最该关注的东西。Manus 的 <strong>todo.md 复述法</strong>是代表：每完成一步，就把更新后的全局计划<strong>重新写一遍并放在上下文末尾</strong>。模型每轮第一眼（开头规则）和最后一眼（当前计划）都被高质量信息占据，长任务不易跑偏。你可以做个对照实验：无 todo &#x2F; 固定不动的 todo &#x2F; 每步重写到末尾，三者的目标漂移率差异会很明显。</li>
+</ul>
+<h3 id="9-3-结构化笔记：把”脑容量”放到窗口外"><a href="#9-3-结构化笔记：把”脑容量”放到窗口外" class="headerlink" title="9.3 结构化笔记：把”脑容量”放到窗口外"></a>9.3 结构化笔记：把”脑容量”放到窗口外</h3><p>当任务需要记住大量中间信息，不要全堆在历史里，而是让模型维护外置笔记（NOTES.md、scratchpad）：</p>
+<ul>
+<li>模型随时把要点写进笔记文件，窗口里只保留”笔记存在、写了哪些小节”的索引；</li>
+<li>需要某部分时再读回（这就是 M5 的 scratchpad retrieval）；</li>
+<li>经典案例：Claude 用结构化笔记+外部记忆玩宝可梦上千步不丢主线。</li>
+</ul>
+<h3 id="9-4-Append-only-与确定性序列化"><a href="#9-4-Append-only-与确定性序列化" class="headerlink" title="9.4 Append-only 与确定性序列化"></a>9.4 Append-only 与确定性序列化</h3><ul>
+<li><strong>Append-only（只追加）</strong>：历史只往后加，不回头改写旧消息。好处有二——①前缀不变，缓存连续命中；②状态可追溯、不会出现”历史被偷偷改掉”的不一致。需要纠正旧信息时，追加一条更正，而不是抹掉旧的。</li>
+<li><strong>确定性序列化</strong>：同样的数据，每次生成的文本字节级一致（固定 JSON key 顺序、固定时间格式、固定小数位）。这直接决定缓存能否命中（M10）。</li>
+</ul>
+<h3 id="9-5-保留错误：失败痕迹是有价值的上下文"><a href="#9-5-保留错误：失败痕迹是有价值的上下文" class="headerlink" title="9.5 保留错误：失败痕迹是有价值的上下文"></a>9.5 保留错误：失败痕迹是有价值的上下文</h3><p>新手常把报错和失败步骤从历史里删掉”让上下文干净”，这是错的。<strong>保留失败尝试和堆栈</strong>能让模型避免重复踩同一个坑（”这个参数组合已经试过，会超时”）。错误恢复能力正是成熟 Agent 的标志。正确做法不是删除失败，而是把冗长的错误输出压缩成一行结论 + 指针（M8），信息保留、体积减小。</p>
+<h3 id="9-6-用结构化分区同时服务”理解”和”安全”"><a href="#9-6-用结构化分区同时服务”理解”和”安全”" class="headerlink" title="9.6 用结构化分区同时服务”理解”和”安全”"></a>9.6 用结构化分区同时服务”理解”和”安全”</h3><p>用清晰的标签把不同可信度、不同用途的内容分隔开（系统指令、用户输入、工具返回各自成区）。这既帮模型理解结构，也为 M14 的信任隔离打下基础——不可信的外部内容永远被包在明确标签里，不与系统指令混淆。</p>
+<h3 id="9-7-本模块小结"><a href="#9-7-本模块小结" class="headerlink" title="9.7 本模块小结"></a>9.7 本模块小结</h3><p>五层布局兼顾缓存与注意力；规则放头、todo 每步重写放尾；中间信息外置成笔记；坚持 append-only 与确定性序列化；压缩错误但保留失败教训。</p>
+<hr>
+<h2 id="M10-缓存与推理性能工程"><a href="#M10-缓存与推理性能工程" class="headerlink" title="M10. 缓存与推理性能工程"></a>M10. 缓存与推理性能工程</h2><h3 id="10-1-KV-Cache-是怎么省钱的"><a href="#10-1-KV-Cache-是怎么省钱的" class="headerlink" title="10.1 KV-Cache 是怎么省钱的"></a>10.1 KV-Cache 是怎么省钱的</h3><p>Transformer 处理一段文本时，会为每个 token 计算 KV 向量（prefill 阶段），这是输入侧主要算力。<strong>Prompt&#x2F;KV Cache 的机制是：如果两次请求的前缀完全相同，就复用这段前缀已经算好的 KV，只对新增部分做计算。</strong> 价格上，命中缓存的输入通常便宜约 10 倍，首 token 延迟（TTFT）也大幅下降。</p>
+<p>残酷之处在于：<strong>前缀必须逐 token 相同，一个 token 对不上，从这个位置往后的缓存全部作废。</strong></p>
+<h3 id="10-2-缓存友好上下文的四要素"><a href="#10-2-缓存友好上下文的四要素" class="headerlink" title="10.2 缓存友好上下文的四要素"></a>10.2 缓存友好上下文的四要素</h3><ol>
+<li><strong>稳定前缀</strong>：把不变的东西放最前面，且绝不能在开头放”当前时间 12:03:47”这类秒级变量——它会让每轮缓存全失效。时间戳若必须要，放到末尾或降低精度（只到天）。</li>
+<li><strong>Append-only</strong>：只在尾部追加（呼应 M9），中间不改。</li>
+<li><strong>确定性序列化</strong>：JSON key 固定排序、枚举固定顺序、浮点固定精度、不用随机 id 当前缀。</li>
+<li><strong>显式缓存断点与 TTL</strong>：主动声明”此前为可缓存前缀”，并了解厂商缓存的存活时间（TTL），在 TTL 内复用、过期前续期。</li>
+</ol>
+<h3 id="10-3-上下文结构要为缓存而设计"><a href="#10-3-上下文结构要为缓存而设计" class="headerlink" title="10.3 上下文结构要为缓存而设计"></a>10.3 上下文结构要为缓存而设计</h3><ul>
+<li>静态层（L0&#x2F;L1）与动态层（L2–L4）物理分离，动态内容永远在静态内容之后；</li>
+<li>工具定义固定顺序、固定数量（这正是 M4”mask 不删除”的缓存理由）；</li>
+<li>把易变配置从系统提示里挪出去，避免”改一句配置 → 整个前缀缓存全凉”。</li>
+</ul>
+<h3 id="10-4-成本模型：为什么-Manus-说命中率是第一指标"><a href="#10-4-成本模型：为什么-Manus-说命中率是第一指标" class="headerlink" title="10.4 成本模型：为什么 Manus 说命中率是第一指标"></a>10.4 成本模型：为什么 Manus 说命中率是第一指标</h3><p>回忆 M2 的数字：Agent 输入:输出 ≈ 100:1，缓存输入价约 1&#x2F;10。那么：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">单任务输入成本 ≈ Σ每轮输入token × (命中部分×缓存单价 + 未命中部分×正常单价)</span><br></pre></td></tr></table></figure>
+
+<p>在动辄几十轮的任务里，<strong>缓存命中率从 40% 提到 90%，输入侧成本和 TTFT 可能直接降一半以上</strong>。所以 Manus 把 KV 命中率称为”生产 Agent 最重要的单一指标”，并在自托管侧用 vLLM 前缀缓存 + <strong>按 session 一致性路由</strong>（同一 session 的请求固定打到存了它 KV 的那个 worker）来保证分布式环境下缓存不丢。</p>
+<h3 id="10-5-缓存击穿坏味道自查清单"><a href="#10-5-缓存击穿坏味道自查清单" class="headerlink" title="10.5 缓存击穿坏味道自查清单"></a>10.5 缓存击穿坏味道自查清单</h3><ul>
+<li>系统提示&#x2F;工具定义里混入了当前时间、随机数、请求 id</li>
+<li>工具按 set&#x2F;dict 无序遍历，顺序每轮漂移</li>
+<li>JSON 用默认序列化，key 顺序不固定</li>
+<li>动态增删工具（应用 M4 的 mask）</li>
+<li>在历史中间插入&#x2F;修改消息（应 append-only）</li>
+<li>易变配置写在稳定前缀内部</li>
+</ul>
+<h3 id="10-6-本模块小结"><a href="#10-6-本模块小结" class="headerlink" title="10.6 本模块小结"></a>10.6 本模块小结</h3><p>KV 缓存是 Agent 成本与延迟的命门；稳定前缀、append-only、确定性序列化、显式断点四要素缺一不可；把命中率当一等监控指标，自托管用前缀缓存+session 亲和路由。</p>
+<hr>
+<h1 id="Part-IV-·-架构级上下文治理"><a href="#Part-IV-·-架构级上下文治理" class="headerlink" title="Part IV · 架构级上下文治理"></a>Part IV · 架构级上下文治理</h1><p>窗口内技巧到顶后，进一步的解法在架构层：用多个干净窗口替代一个脏窗口（M11）、用状态与外壳支撑超长任务（M12）、并看懂主流框架的设计分野（M13）。</p>
+<h2 id="M11-子-Agent：用多个干净窗口替代一个脏窗口"><a href="#M11-子-Agent：用多个干净窗口替代一个脏窗口" class="headerlink" title="M11. 子 Agent：用多个干净窗口替代一个脏窗口"></a>M11. 子 Agent：用多个干净窗口替代一个脏窗口</h2><h3 id="11-1-核心思想：与其压缩，不如隔离"><a href="#11-1-核心思想：与其压缩，不如隔离" class="headerlink" title="11.1 核心思想：与其压缩，不如隔离"></a>11.1 核心思想：与其压缩，不如隔离</h3><p>M8 讲的是”在一个窗口里做减法”。子 Agent 提供了另一条路：<strong>不在一个窗口里硬塞所有事情，而是开多个各自干净的窗口，每个专注一件事，只把结论交回主窗口。</strong></p>
+<p>典型结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">主 Agent（干净、只持高层计划与各子任务结论）</span><br><span class="line"> ├─ 子Agent A：独立窗口，检索网页（烧掉 4 万 token 过程）→ 只回 1.5K 结论</span><br><span class="line"> ├─ 子Agent B：独立窗口，读代码库（烧掉 3 万 token 过程）→ 只回 1.2K 结论</span><br><span class="line"> └─ 子Agent C：独立窗口，跑数据分析（烧掉 2 万 token 过程）→ 只回 1.0K 结论</span><br></pre></td></tr></table></figure>
+
+<p>子 Agent 在自己的窗口里可以”肆无忌惮”地读大量材料、试错、看冗长输出——这些<strong>过程性噪声永远不会污染主 Agent 的窗口</strong>。这本质上是一种”空间换整洁”的压缩：40K 的探索过程蒸馏成 1.5K 的摘要，压缩比可达数十倍。</p>
+<h3 id="11-2-收益与代价（务必同时记住）"><a href="#11-2-收益与代价（务必同时记住）" class="headerlink" title="11.2 收益与代价（务必同时记住）"></a>11.2 收益与代价（务必同时记住）</h3><ul>
+<li><strong>收益</strong>：①每个 Agent 上下文干净、专注，抗 Context Rot；②关注点物理隔离，一个子任务的失败&#x2F;污染不扩散；③可并行。</li>
+<li><strong>量化收益</strong>：Anthropic 的多 Agent 研究系统相比”单个最强 Agent”，研究质量提升约 <strong>90.2%</strong>。</li>
+<li><strong>代价</strong>：token 消耗约 <strong>15 倍</strong>（多个窗口各自读入、探索）。所以它<strong>不是免费午餐</strong>：简单、低成本任务用子 Agent 是亏本的；复杂研究、并行探索、高价值任务才划算。做架构决策时要算这个性价比拐点。</li>
+</ul>
+<h3 id="11-3-三种上下文移交机制"><a href="#11-3-三种上下文移交机制" class="headerlink" title="11.3 三种上下文移交机制"></a>11.3 三种上下文移交机制</h3><table>
+<thead>
+<tr>
+<th>机制</th>
+<th>出处&#x2F;代表</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sub-agent 摘要回传</td>
+<td>Anthropic、Cursor</td>
+<td>子窗独立，只回蒸馏摘要（1–2K）</td>
+</tr>
+<tr>
+<td>Handoff 定向移交</td>
+<td>OpenAI Agents SDK</td>
+<td>把任务连同必要上下文”交接”给另一 Agent，原 Agent 退出</td>
+</tr>
+<tr>
+<td>子图隔离</td>
+<td>LangGraph</td>
+<td>主图与子图状态隔离，子图只暴露声明的输出键</td>
+</tr>
+<tr>
+<td>消息传递</td>
+<td>AutoGen</td>
+<td>Agent 间互发消息，各自维护历史</td>
+</tr>
+</tbody></table>
+<h3 id="11-4-设计难点：回流契约（摘要必然有损）"><a href="#11-4-设计难点：回流契约（摘要必然有损）" class="headerlink" title="11.4 设计难点：回流契约（摘要必然有损）"></a>11.4 设计难点：回流契约（摘要必然有损）</h3><p>子 Agent 只回摘要，就一定有信息损失。工程上要设计<strong>回流契约</strong>：</p>
+<ul>
+<li>明确规定回传结构：<code>{结论, 关键证据, 未解决问题, 原始材料指针}</code>；</li>
+<li>关键约束、数字、ID 必须原文回传，不许只回概括；</li>
+<li>过程材料归档留指针（呼应 M8 可恢复压缩），主 Agent 存疑时可让子 Agent 或自己按指针复查；</li>
+<li>主 Agent 只保留”决策需要”的信息，不保留子任务的探索过程。</li>
+</ul>
+<h3 id="11-5-什么时候用、什么时候别用"><a href="#11-5-什么时候用、什么时候别用" class="headerlink" title="11.5 什么时候用、什么时候别用"></a>11.5 什么时候用、什么时候别用</h3><ul>
+<li><strong>用</strong>：多路并行调研、一个任务要读远超单窗容量的材料、需要把高风险&#x2F;不可信内容关进”沙箱窗口”处理；</li>
+<li><strong>别用</strong>：一两步就能完成的简单任务（15× 账单不划算）、子任务间强耦合需要共享大量中间状态（隔离反而碍事）。</li>
+</ul>
+<h3 id="11-6-本模块小结"><a href="#11-6-本模块小结" class="headerlink" title="11.6 本模块小结"></a>11.6 本模块小结</h3><p>子 Agent 是”隔离式压缩”：干净窗口专注探索、只回结构化摘要；质量收益显著但 token 代价高；关键在设计不丢约束的回流契约，并按任务价值决定是否值得。</p>
+<hr>
+<h2 id="M12-状态管理、会话生命周期与-Harness"><a href="#M12-状态管理、会话生命周期与-Harness" class="headerlink" title="M12. 状态管理、会话生命周期与 Harness"></a>M12. 状态管理、会话生命周期与 Harness</h2><h3 id="12-1-为什么”只做-compaction”撑不起超长任务"><a href="#12-1-为什么”只做-compaction”撑不起超长任务" class="headerlink" title="12.1 为什么”只做 compaction”撑不起超长任务"></a>12.1 为什么”只做 compaction”撑不起超长任务</h3><p>一个常见误区是：窗口满了就摘要压缩，似乎这样就能无限跑下去。Anthropic 在《Effective harnesses for long-running agents》中明确指出：<strong>单靠压缩不够</strong>。因为长时程任务需要的不只是”别超窗”，还包括：</p>
+<ul>
+<li><strong>规划与待办</strong>：知道整体走到哪、下一步干嘛（压缩会把这些磨平）；</li>
+<li><strong>文件式外部记忆</strong>：中间产物落盘，随时取回（M8 的可恢复性）；</li>
+<li><strong>工具审批记忆</strong>：哪些操作已经获用户批准、规则是什么；</li>
+<li><strong>验证回路</strong>：自我检查、测试、纠错的闭环。</li>
+</ul>
+<p>这些合起来，构成了包裹模型的<strong>运行时外壳——Harness</strong>。</p>
+<h3 id="12-2-Harness-到底是什么"><a href="#12-2-Harness-到底是什么" class="headerlink" title="12.2 Harness 到底是什么"></a>12.2 Harness 到底是什么</h3><p>可以把一次 Agent 运行理解为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">结果 = Model（大脑）× Harness（外壳：指令 + 工具 + 状态 + 压缩 + 记忆 + 审批 + 验证）</span><br></pre></td></tr></table></figure>
+
+<p>模型负责推理，harness 负责”让模型在正确的时刻看到正确的上下文、能安全地行动、出错能恢复”。重要认知：<strong>换一个模型，harness 往往要重新调校</strong>——不同模型对指令密度、工具格式、压缩方式的偏好不同，没有”一次写好通用所有模型”的外壳。</p>
+<h3 id="12-3-History-与-State-的分离与持久化"><a href="#12-3-History-与-State-的分离与持久化" class="headerlink" title="12.3 History 与 State 的分离与持久化"></a>12.3 History 与 State 的分离与持久化</h3><ul>
+<li><p><strong>History（历史）</strong>：完整事件流，用于审计、回放、调试，通常落库；</p>
+</li>
+<li><p><strong>State（状态）</strong>：当前任务的结构化快照，用于驱动推理，进窗口；</p>
+</li>
+<li><p><strong>Checkpoint &#x2F; Snapshot</strong>：在关键节点存状态快照，支持：</p>
+</li>
+<li><p><strong>断点续跑</strong>：进程挂了从最近检查点恢复；</p>
+</li>
+<li><p><strong>Time-travel（时间旅行）</strong>：回到某个历史节点换条路重试；</p>
+</li>
+<li><p><strong>Human-in-the-loop</strong>：在审批点暂停、等人决策后恢复（LangGraph 的 checkpoint 是典型实现）。</p>
+</li>
+</ul>
+<h3 id="12-4-会话生命周期"><a href="#12-4-会话生命周期" class="headerlink" title="12.4 会话生命周期"></a>12.4 会话生命周期</h3><p>把一次长会话当成有生命周期的对象管理：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">创建 → 增长（工具结果不断追加）→ 临近阈值触发压缩 → 阶段性 checkpoint</span><br><span class="line">     → 任务结束归档（历史/状态/产物分别落盘）→ 未来可被检索/复活</span><br></pre></td></tr></table></figure>
+
+<p>要明确<strong>持久化边界</strong>：什么只在内存（临时 scratchpad）、什么落会话存储（State&#x2F;History）、什么进跨会话长期记忆（M6）。边界不清就会出现”重启后失忆”或”把临时垃圾写进长期记忆”两类问题。</p>
+<h3 id="12-5-长运行退化现象与应对"><a href="#12-5-长运行退化现象与应对" class="headerlink" title="12.5 长运行退化现象与应对"></a>12.5 长运行退化现象与应对</h3><p>有第三方观察到某些自治编码 Agent 在连续运行约 2.5 小时后出现退化（重复操作、偏离目标）——注意这是第三方口径，用来提示现象而非精确阈值。应对正是 harness 组合拳：周期性压缩 + 每步重写 todo（M9）+ checkpoint 自我对齐 + 阶段性验证 + 必要时”开新窗+读回状态”做一次软重启。</p>
+<h3 id="12-6-本模块小结"><a href="#12-6-本模块小结" class="headerlink" title="12.6 本模块小结"></a>12.6 本模块小结</h3><p>超长任务靠的是 harness 而非单一压缩；分离 History&#x2F;State、用 checkpoint 支持续跑与回溯、按生命周期管理会话、为具体模型调校外壳。</p>
+<hr>
+<h2 id="M13-主流框架与平台的上下文哲学对比"><a href="#M13-主流框架与平台的上下文哲学对比" class="headerlink" title="M13. 主流框架与平台的上下文哲学对比"></a>M13. 主流框架与平台的上下文哲学对比</h2><h3 id="13-1-两条路线：显式状态派-vs-对话流动派"><a href="#13-1-两条路线：显式状态派-vs-对话流动派" class="headerlink" title="13.1 两条路线：显式状态派 vs 对话流动派"></a>13.1 两条路线：显式状态派 vs 对话流动派</h3><p>看懂所有 Agent 框架，先抓住这条主线分野：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>显式状态派</th>
+<th>对话流动派</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>状态载体</td>
+<td>显式定义的 State 对象&#x2F;图</td>
+<td>对话消息历史本身</td>
+</tr>
+<tr>
+<td>上下文边界</td>
+<td>代码里声明每个节点读&#x2F;写哪些键</td>
+<td>靠消息自然流动，边界隐式</td>
+</tr>
+<tr>
+<td>可审计&#x2F;可测试</td>
+<td>强（状态可断言、可回放）</td>
+<td>弱（要从消息流里还原）</td>
+</tr>
+<tr>
+<td>上手速度</td>
+<td>略陡</td>
+<td>快</td>
+</tr>
+<tr>
+<td>代表</td>
+<td>LangGraph、Google ADK、阿里 AgentRun</td>
+<td>AutoGen&#x2F;AG2、CrewAI</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>生产、长流程、强治理</td>
+<td>原型、协作式多 Agent、内部工具</td>
+</tr>
+</tbody></table>
+<h3 id="13-2-显式状态派精读"><a href="#13-2-显式状态派精读" class="headerlink" title="13.2 显式状态派精读"></a>13.2 显式状态派精读</h3><ul>
+<li><strong>LangGraph</strong>：用 <code>TypedDict</code> 显式定义 State；每个节点<strong>只声明自己读&#x2F;写哪些状态键</strong>（从框架层面强制上下文最小化）；checkpoint 持久化与 time-travel；子图做上下文隔离；LangMem 负责长期记忆。它把 M7&#x2F;M11&#x2F;M12 的理念直接做进了编程模型。</li>
+<li><strong>Google ADK</strong>：明确三层分离——<strong>Session</strong>（事件历史）&#x2F; <strong>State</strong>（会话内工作记忆）&#x2F; <strong>MemoryService</strong>（跨会话长期记忆），是 M6&#x2F;M12 的教科书式实现。</li>
+<li><strong>阿里 AgentRun × Tablestore</strong>：三类存储对应 session history（历史）&#x2F; session state（状态）&#x2F; long-term（长期，含 mem0 表、MCP 抽取、跨会话）。</li>
+</ul>
+<h3 id="13-3-对话流动派与厂商原生-SDK"><a href="#13-3-对话流动派与厂商原生-SDK" class="headerlink" title="13.3 对话流动派与厂商原生 SDK"></a>13.3 对话流动派与厂商原生 SDK</h3><ul>
+<li><strong>AutoGen&#x2F;AG2</strong>：以多 Agent 对话为中心，上下文就是消息历史；灵活，但生产级的裁剪、持久化往往要自己补。</li>
+<li><strong>CrewAI</strong>：内置 short-term &#x2F; long-term &#x2F; entity 三类记忆，任务间用 <code>context</code> 参数顺序传递；上手快，复杂状态治理需额外设计。</li>
+<li><strong>Claude Agent SDK</strong>：自动 compaction、subagents、CLAUDE.md 预载，把上下文工程大量内置。</li>
+<li><strong>OpenAI Agents SDK</strong>：Agent &#x2F; Tool &#x2F; Handoff &#x2F; Guardrail 四原语，handoff 即上下文定向移交，经 LiteLLM 接多模型；Codex CLI 自动 compaction。</li>
+<li><strong>Microsoft Agent Framework</strong>：AgentSession、Context Providers、内置 Context Compaction，并有集成规划+todo+压缩+文件记忆+审批+可观测的 Harness Agent。</li>
+</ul>
+<h3 id="13-4-低代码-企业技术栈"><a href="#13-4-低代码-企业技术栈" class="headerlink" title="13.4 低代码 &#x2F; 企业技术栈"></a>13.4 低代码 &#x2F; 企业技术栈</h3><ul>
+<li><strong>扣子 Coze</strong>：变量&#x2F;数据库≈短期工作状态，记忆库≈跨会话长期记忆（含用户画像），知识库 RAG 与记忆分离——对应 M5&#x2F;M6 的分层。</li>
+<li><strong>Spring AI（Java 栈，契合企业数据平台）</strong>：ChatMemory 管短期；Session API 提供事件溯源与压缩；AutoMemoryTools 管长期。</li>
+</ul>
+<h3 id="13-5-选型决策清单"><a href="#13-5-选型决策清单" class="headerlink" title="13.5 选型决策清单"></a>13.5 选型决策清单</h3><p>问自己五个问题：</p>
+<ol>
+<li>流程是否需要<strong>显式可审计、可回放</strong>？（要→显式状态派）</li>
+<li>是否有<strong>长流程、断点续跑、人工审批</strong>需求？（要→带 checkpoint 的框架）</li>
+<li>是否<strong>多 Agent 并行&#x2F;隔离</strong>？（要→看子图&#x2F;handoff 能力）</li>
+<li>是否要<strong>避免绑定单一模型厂商</strong>？（要→多模型适配层）</li>
+<li>团队语言栈与交付速度？（Java 企业栈→Spring AI；快速原型→CrewAI&#x2F;Coze）</li>
+</ol>
+<h3 id="13-6-本模块小结"><a href="#13-6-本模块小结" class="headerlink" title="13.6 本模块小结"></a>13.6 本模块小结</h3><p>框架之争本质是”状态显式还是隐式”之争；生产治理优先显式状态派，原型与协作可选对话流动派；厂商 SDK 把压缩&#x2F;子 Agent 内置得越来越多，但你仍要理解原理才能用好、调对。</p>
+<hr>
+<h1 id="Part-V-·-管控与实战"><a href="#Part-V-·-管控与实战" class="headerlink" title="Part V · 管控与实战"></a>Part V · 管控与实战</h1><p>前四部分让 Agent”跑得快、跑得好”，本部分让它”不出事、可度量、能落地”：M14 安全信任，M15 观测&#x2F;评估&#x2F;成本，M16 案例与毕业项目。</p>
+<h2 id="M14-安全与信任边界（治理的底线）"><a href="#M14-安全与信任边界（治理的底线）" class="headerlink" title="M14. 安全与信任边界（治理的底线）"></a>M14. 安全与信任边界（治理的底线）</h2><h3 id="14-1-上下文层的四类攻击面"><a href="#14-1-上下文层的四类攻击面" class="headerlink" title="14.1 上下文层的四类攻击面"></a>14.1 上下文层的四类攻击面</h3><p>Agent 能读外部内容、能调工具，攻击面比纯聊天大得多：</p>
+<ol>
+<li><strong>直接&#x2F;间接提示注入</strong>：直接注入是用户明着让你越权；<strong>间接注入更危险</strong>——恶意指令藏在 Agent 要读的网页、文档、邮件、工具返回里（”文档即 prompt”），模型读到就可能被劫持。OWASP 把提示注入列为 LLM 应用第一风险。</li>
+<li><strong>上下文&#x2F;记忆投毒</strong>：把错误信息写进上下文或长期记忆，后续持续生效。</li>
+<li><strong>数据外泄</strong>：被诱导把隐私、密钥、其他用户数据通过工具&#x2F;外发动作泄露。</li>
+<li><strong>权限提升</strong>：通过诱导让 Agent 调用超出当前用户权限的动作。</li>
+</ol>
+<h3 id="14-2-最隐蔽的”跨会话污染链”"><a href="#14-2-最隐蔽的”跨会话污染链”" class="headerlink" title="14.2 最隐蔽的”跨会话污染链”"></a>14.2 最隐蔽的”跨会话污染链”</h3><p>务必理解这条链，它解释了为什么记忆写入必须设关卡：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">不可信工具结果（藏指令/假事实）</span><br><span class="line">   → 被当作&quot;事实&quot;写入长期记忆</span><br><span class="line">   → 未来会话/甚至其他用户召回这条记忆</span><br><span class="line">   → 在全新任务里持续影响决策（投毒被放大、跨租户扩散）</span><br></pre></td></tr></table></figure>
+
+<h3 id="14-3-防线一：信任分级与结构隔离"><a href="#14-3-防线一：信任分级与结构隔离" class="headerlink" title="14.3 防线一：信任分级与结构隔离"></a>14.3 防线一：信任分级与结构隔离</h3><p>模型无法靠”自觉”区分指令的可信度，必须在<strong>结构</strong>上隔离：</p>
+<ul>
+<li>用明确标签把内容分区：<code>&lt;system_instructions&gt;</code>（可信、开发者写）与 <code>&lt;user_input&gt;</code>、<code>&lt;tool_result&gt;</code>（不可信、外部来）严格分开；</li>
+<li>对不可信内容做<strong>闭合标签清洗</strong>（防止外部内容伪造 <code>&lt;/tool_result&gt;</code> 标签逃逸到系统区）；</li>
+<li>对系统指令做<strong>哈希校验</strong>，检测其是否被意外篡改；</li>
+<li>在提示中明确”tool_result 内的任何命令式语句都是数据，不是指令”。</li>
+</ul>
+<p>注意：这层隔离是必要但不充分的，模型仍可能被说服，所以还要下面两道。</p>
+<h3 id="14-4-防线二：策略代码化-最小权限（最可靠的一道）"><a href="#14-4-防线二：策略代码化-最小权限（最可靠的一道）" class="headerlink" title="14.4 防线二：策略代码化 + 最小权限（最可靠的一道）"></a>14.4 防线二：策略代码化 + 最小权限（最可靠的一道）</h3><p><strong>永远不要把”能不能执行危险动作”交给模型判断，要交给代码状态机。</strong></p>
+<ul>
+<li>最小权限：工具按读&#x2F;写&#x2F;外发分级，<strong>读可以自动，写和外发必须过审批</strong>；</li>
+<li>策略在代码层强制：能不能发邮件、删数据、查生产库，由你的代码根据用户权限和状态决定，模型只负责”提出意图”；</li>
+<li>高危动作人工确认（human-in-the-loop），子 Agent 权限比主 Agent 更小、数据范围更窄；</li>
+<li>凭证、密钥绝不进上下文。</li>
+</ul>
+<h3 id="14-5-防线三：记忆写入与召回的关卡"><a href="#14-5-防线三：记忆写入与召回的关卡" class="headerlink" title="14.5 防线三：记忆写入与召回的关卡"></a>14.5 防线三：记忆写入与召回的关卡</h3><ul>
+<li><strong>外部原文默认不直接写入长期记忆</strong>，需经抽取+白名单字段；</li>
+<li>每条记忆带元数据：<code>用户/租户、来源、可信度、写入时间、TTL</code>；</li>
+<li><strong>召回时强制按租户&#x2F;用户过滤</strong>，从查询层杜绝跨用户串数据；</li>
+<li>提供用户可查、可改、可删的记忆管理入口（合规要求）；</li>
+<li>冲突事实以新替旧、过期事实按 TTL 失效（同时治 Clash 污染）。</li>
+</ul>
+<h3 id="14-6-红队自测：20-条注入用例"><a href="#14-6-红队自测：20-条注入用例" class="headerlink" title="14.6 红队自测：20 条注入用例"></a>14.6 红队自测：20 条注入用例</h3><p>学完后构造一个用例集，把攻击指令分别藏进：网页正文、HTML 注释、工具返回 JSON 字段、长期记忆、文件名、多语言&#x2F;编码混淆处，验证三道防线是否都能挡住。<strong>红线指标：跨用户&#x2F;跨租户上下文泄漏率必须为 0。</strong></p>
+<h3 id="14-7-本模块小结"><a href="#14-7-本模块小结" class="headerlink" title="14.7 本模块小结"></a>14.7 本模块小结</h3><p>上下文安全靠三道防线叠加：结构隔离（标签&#x2F;清洗&#x2F;校验）+ 代码层权限策略（最可靠）+ 记忆写入与召回关卡；输出端一句”别听恶意指令”是最不可靠的，不能当防线。</p>
+<hr>
+<h2 id="M15-可观测、评估与成本治理（让改进可度量）"><a href="#M15-可观测、评估与成本治理（让改进可度量）" class="headerlink" title="M15. 可观测、评估与成本治理（让改进可度量）"></a>M15. 可观测、评估与成本治理（让改进可度量）</h2><h3 id="15-1-核心态度：拒绝”体感变好”"><a href="#15-1-核心态度：拒绝”体感变好”" class="headerlink" title="15.1 核心态度：拒绝”体感变好”"></a>15.1 核心态度：拒绝”体感变好”</h3><p>上下文优化最容易自欺：改完觉得 Agent”看起来更像那么回事”，但成功率没涨、成本反而上去了。<strong>任何改动都要用指标证明。</strong> 为此需要三类能力：看得见（观测）、判得准（评估）、控得住（成本 SLO）。</p>
+<h3 id="15-2-可观测：让每段上下文可追溯"><a href="#15-2-可观测：让每段上下文可追溯" class="headerlink" title="15.2 可观测：让每段上下文可追溯"></a>15.2 可观测：让每段上下文可追溯</h3><ul>
+<li><strong>来源 trace</strong>：最终回答里用到的每个信息点，都能回溯它来自系统指令&#x2F;检索&#x2F;记忆&#x2F;工具&#x2F;用户中的哪一条；</li>
+<li><strong>生命周期埋点</strong>：每条上下文记录”何时写入、是否命中、何时被驱逐&#x2F;压缩”；</li>
+<li>工具链：LangSmith、Langfuse 等可追踪每次调用的完整上下文与链路；</li>
+<li>出事故时能回放：用 M12 的 checkpoint&#x2F;history 还原”当时模型到底看到了什么”。</li>
+</ul>
+<h3 id="15-3-评估体系：四层指标"><a href="#15-3-评估体系：四层指标" class="headerlink" title="15.3 评估体系：四层指标"></a>15.3 评估体系：四层指标</h3><p><strong>第一层：上下文健康探针（M2 已埋点，这里工程化）</strong></p>
+<ul>
+<li>context-rot probe：固定题集 × 多种长度，持续监控衰减；</li>
+<li>NIAH probe：已知事实插不同深度，监控中段丢失。</li>
+</ul>
+<p><strong>第二层：压缩质量</strong></p>
+<ul>
+<li>Recall（信息点覆盖率）&#x2F; Precision（摘要精炼度）；</li>
+<li>压缩后可恢复率（被压掉的内容有多少能按指针取回，对应 M8 的 F3）。</li>
+</ul>
+<p><strong>第三层：任务与业务（五类核心指标）</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>看什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>任务成功率</td>
+<td>是否完成目标、人工补救率、成功路径能否稳定复现</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>单任务总 token、各层 token、缓存命中比例</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>TTFT、端到端耗时、p95</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>同题多次运行的结果方差</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>注入用例通过率、跨租户泄漏（红线&#x3D;0）</td>
+</tr>
+</tbody></table>
+<p><strong>第四层：上下文消融回归</strong></p>
+<ul>
+<li>基于真实复杂 trace 建回归集；任何对装配、压缩、工具集、提示的改动都跑一遍，防止”改好 A 弄坏 B”。</li>
+</ul>
+<h3 id="15-4-成本与性能-SLO-看板"><a href="#15-4-成本与性能-SLO-看板" class="headerlink" title="15.4 成本与性能 SLO 看板"></a>15.4 成本与性能 SLO 看板</h3><p>把下面这些做成持续监控的看板（数据就来自 M7 的 token 账单和 M10 的缓存统计）：</p>
+<ul>
+<li>各层 token 占用分布与趋势；</li>
+<li>压缩触发频率、压缩前后占用；</li>
+<li>KV 缓存命中率（第一指标）、未命中原因；</li>
+<li>单任务 token 成本、TTFT&#x2F;p95；</li>
+<li>窗口占用峰值分布（多少比例的运行逼近上限）。</li>
+</ul>
+<p>设定 SLO，例如”缓存命中率 ≥ 80%、单任务 token 环比不上升、rot 探针正确率 ≥ 95%”，劣化即报警。</p>
+<h3 id="15-5-一个改动的标准闭环"><a href="#15-5-一个改动的标准闭环" class="headerlink" title="15.5 一个改动的标准闭环"></a>15.5 一个改动的标准闭环</h3><p>以后每次做上下文优化，都走这个闭环：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">基线测量 → 提出假设并改动 → 跑回归集+探针 → 对比五类指标</span><br><span class="line">   → 有正向收益且无回归才合入 → 更新看板基线</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-6-本模块小结"><a href="#15-6-本模块小结" class="headerlink" title="15.6 本模块小结"></a>15.6 本模块小结</h3><p>用来源 trace 让上下文可追溯；用 rot&#x2F;NIAH 探针、压缩 Recall&#x2F;Precision、五类任务指标、消融回归构成评估网；用 SLO 看板控成本；一切改动凭数据合入。</p>
+<hr>
+<h2 id="M16-案例精读与-Capstone-毕业项目"><a href="#M16-案例精读与-Capstone-毕业项目" class="headerlink" title="M16. 案例精读与 Capstone 毕业项目"></a>M16. 案例精读与 Capstone 毕业项目</h2><h3 id="16-1-六个头部实践，分别看它怎么做四块工作"><a href="#16-1-六个头部实践，分别看它怎么做四块工作" class="headerlink" title="16.1 六个头部实践，分别看它怎么做四块工作"></a>16.1 六个头部实践，分别看它怎么做四块工作</h3><p>精读时对每个案例都填这张表（生成&#x2F;处理&#x2F;管理&#x2F;治理各做了什么）：</p>
+<p><strong>① Anthropic &#x2F; Claude Code（方法论标杆）</strong></p>
+<ul>
+<li>生成：CLAUDE.md 预载规范、just-in-time 检索、精简工具集；</li>
+<li>处理：compaction（先 Recall 后 Precision）、tool-result clearing、结构化笔记；</li>
+<li>管理：subagents 独立窗口、Context Editing 自动清理、Memory Tool 文件式外置记忆；</li>
+<li>要点：三原语——压缩、笔记、子 Agent。</li>
+</ul>
+<p><strong>② Manus（生产工程密度标杆）</strong></p>
+<ul>
+<li>围绕 KV-Cache 设计（稳定前缀&#x2F;append-only&#x2F;确定性序列化&#x2F;显式断点）；</li>
+<li>mask 不删工具 + 约束解码三态；L1&#x2F;L2&#x2F;L3 层级动作空间；</li>
+<li>文件系统当”最终上下文”，一切压缩可恢复；</li>
+<li>todo.md 每步重写置于末尾；保留失败堆栈；few-shot 受控多样性；</li>
+<li>规模感：单任务约 50 次工具调用、输入:输出 ≈ 100:1。</li>
+</ul>
+<p><strong>③ Cursor（编码 Agent 标杆）</strong></p>
+<ul>
+<li>主 Agent 与 subagent 不共享窗口，保主窗干净；.cursorrules&#x2F;规则文件预载；代码库索引按需取；强调 harness 要随模型调校。</li>
+</ul>
+<p><strong>④ OpenAI Codex CLI &#x2F; Devin（自治执行标杆）</strong></p>
+<ul>
+<li>Codex CLI 自动 compaction（剪枝+摘要策略被实证最优）；Devin 隔离 VM 作为外部工作区；注意长运行退化需 harness 兜底。</li>
+</ul>
+<p><strong>⑤ Google ADK &#x2F; Microsoft Agent Framework（企业框架标杆）</strong></p>
+<ul>
+<li>ADK 的 Session&#x2F;State&#x2F;MemoryService 三层分离；MS AF 的 Context Providers、内置 compaction 与集成式 Harness Agent。</li>
+</ul>
+<p><strong>⑥ 国内实践</strong></p>
+<ul>
+<li>扣子 Coze：变量&#x2F;数据库（短期）+ 记忆库（长期、画像）+ 知识库（RAG）三分；</li>
+<li>阿里 AgentRun×Tablestore：history&#x2F;state&#x2F;long-term 三存储、MCP 抽取；</li>
+<li>Spring AI：ChatMemory + Session API（事件溯源&#x2F;压缩）+ AutoMemoryTools。</li>
+</ul>
+<h3 id="16-2-Capstone：为一个真实-Agent-做上下文治理改造（1–2-周）"><a href="#16-2-Capstone：为一个真实-Agent-做上下文治理改造（1–2-周）" class="headerlink" title="16.2 Capstone：为一个真实 Agent 做上下文治理改造（1–2 周）"></a>16.2 Capstone：为一个真实 Agent 做上下文治理改造（1–2 周）</h3><p>选一个你工作中真实在跑（或能搭起来）的 Agent，严格按六步走，每步都留数据：</p>
+<p><strong>第 1 步 · 基线测量</strong></p>
+<ul>
+<li>抓 20 条真实 trace，产出：分层 token 账单、缓存命中率、成功率、窗口峰值、退化点；跑一轮注入用例与 rot&#x2F;NIAH 探针，建立基线档案。</li>
+</ul>
+<p><strong>第 2 步 · 分层重构（M7&#x2F;M9&#x2F;M10）</strong></p>
+<ul>
+<li>实现 ContextAssembler 分层配额；按五层布局重排；固定稳定前缀、确定性序列化，复测缓存命中率。</li>
+</ul>
+<p><strong>第 3 步 · 处理增强（M8&#x2F;M9）</strong></p>
+<ul>
+<li>加 tool-result clearing + 混合 compaction（可恢复、留指针）；加 todo&#x2F;notes 机制；测压缩 Recall&#x2F;Precision。</li>
+</ul>
+<p><strong>第 4 步 · 架构优化（M5&#x2F;M11）</strong></p>
+<ul>
+<li>至少把一处”全量预载”改成 just-in-time，或把一个臃肿环节拆成子 Agent；算清 token 与质量的性价比。</li>
+</ul>
+<p><strong>第 5 步 · 治理闭环（M14&#x2F;M15）</strong></p>
+<ul>
+<li>做信任结构隔离、危险动作代码层审批、记忆写入关卡；接来源 trace、搭 SLO 看板、接入周度探针。</li>
+</ul>
+<p><strong>第 6 步 · 交付前后对比报告</strong></p>
+<ul>
+<li>用同一张表对比改造前后：成功率、单任务 token、TTFT&#x2F;p95、缓存命中率、窗口峰值、注入用例通过率。<strong>没有数据对比的改造不算完成。</strong></li>
+</ul>
+<h3 id="16-3-毕业自测（能答上来即过关）"><a href="#16-3-毕业自测（能答上来即过关）" class="headerlink" title="16.3 毕业自测（能答上来即过关）"></a>16.3 毕业自测（能答上来即过关）</h3><ol>
+<li>默画”8 类来源 → 生成&#x2F;处理&#x2F;管理 → 窗口五层 → 治理四件套”全景图；</li>
+<li>给任意一个 Agent，能指出它的主要上下文失效模式（对照四类污染）并开出对应处方；</li>
+<li>量化解释并给出对策：context rot、lost-in-middle、压缩漂移、缓存击穿、记忆投毒链；</li>
+<li>说清”为什么动态删工具是错的、正确做法是什么”；</li>
+<li>说清”为什么不可逆压缩有风险、可恢复压缩怎么实现”；</li>
+<li>能设计一套指标证明某次上下文改动确实变好了。</li>
+</ol>
+<hr>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><h2 id="A-全书一页速查（把方法钉到”层-×-动作”上）"><a href="#A-全书一页速查（把方法钉到”层-×-动作”上）" class="headerlink" title="A. 全书一页速查（把方法钉到”层 × 动作”上）"></a>A. 全书一页速查（把方法钉到”层 × 动作”上）</h2><table>
+<thead>
+<tr>
+<th>窗口层</th>
+<th>生成（放什么）</th>
+<th>处理（怎么维护）</th>
+<th>管理&#x2F;治理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L0 稳定静态</td>
+<td>系统指令、工具 schema、输出格式</td>
+<td>精简、去重、right altitude</td>
+<td>位置固定保缓存；版本化、消融</td>
+</tr>
+<tr>
+<td>L1 策略记忆</td>
+<td>长期记忆召回、画像、规范</td>
+<td>预算上限+相关过滤+冲突以新替旧</td>
+<td>写入关卡、租户隔离、TTL</td>
+</tr>
+<tr>
+<td>L2 按需检索</td>
+<td>RAG&#x2F;代码&#x2F;文档（指针化 JIT）</td>
+<td>rerank、渐进披露、相关性截断</td>
+<td>外部内容标记为不可信</td>
+</tr>
+<tr>
+<td>L3 历史压缩</td>
+<td>远期历史&#x2F;工具结果</td>
+<td>tool-result clearing→混合摘要</td>
+<td>可恢复（留指针）、增量合并</td>
+</tr>
+<tr>
+<td>L4 近期工作</td>
+<td>最近原文、todo、scratchpad</td>
+<td>todo 每步重写置尾、保留错误</td>
+<td>append-only、checkpoint</td>
+</tr>
+<tr>
+<td>跨窗口</td>
+<td>——</td>
+<td>子 Agent 隔离探索、只回摘要</td>
+<td>回流契约、最小权限</td>
+</tr>
+</tbody></table>
+<h2 id="B-上下文治理落地检查清单（可直接用于-Code-Review）"><a href="#B-上下文治理落地检查清单（可直接用于-Code-Review）" class="headerlink" title="B. 上下文治理落地检查清单（可直接用于 Code Review）"></a>B. 上下文治理落地检查清单（可直接用于 Code Review）</h2><ul>
+<li>是否做过 8 类来源审计，知道每层 token 占比？</li>
+<li>是否有动态预算公式与分层 cap，且留了安全边际？</li>
+<li>大块知识是否指针化&#x2F;JIT，而非全量预载？</li>
+<li>工具是否精简不重叠？是否用 mask 而非动态增删？</li>
+<li>是否先做 tool-result clearing，再有摘要 compaction？</li>
+<li>所有压缩是否可恢复（留 URL&#x2F;路径&#x2F;ID&#x2F;归档）？</li>
+<li>是否五层布局、稳定前缀、append-only、确定性序列化？</li>
+<li>KV 缓存命中率是否被监控？有无击穿坏味道？</li>
+<li>长任务是否有 harness（todo+笔记+checkpoint+验证）而非只靠压缩？</li>
+<li>外部内容是否结构隔离？危险动作是否代码层审批？</li>
+<li>记忆写入是否有白名单&#x2F;来源&#x2F;TTL，召回是否租户过滤？</li>
+<li>是否有 rot&#x2F;NIAH 探针、压缩 Recall 评测、回归集与 SLO 看板？</li>
+</ul>
+<h2 id="C-4-周-8-周学习节奏"><a href="#C-4-周-8-周学习节奏" class="headerlink" title="C. 4 周 &#x2F; 8 周学习节奏"></a>C. 4 周 &#x2F; 8 周学习节奏</h2><ul>
+<li><strong>4 周全职</strong>：W1 &#x3D; M0–M2（建立定律，做来源审计+rot 探针）；W2 &#x3D; M3–M6 + M10（生成与缓存）；W3 &#x3D; M7–M9、M11–M13（处理与架构）；W4 &#x3D; M14–M16（治理+Capstone）。</li>
+<li><strong>8 周业余</strong>：每周 2 个模块；M2&#x2F;M7&#x2F;M8&#x2F;M11 是承重墙，务必各完成一个动手实验；最后两周做 Capstone。</li>
+</ul>
+<h2 id="D-推荐阅读最短路径（按序）"><a href="#D-推荐阅读最短路径（按序）" class="headerlink" title="D. 推荐阅读最短路径（按序）"></a>D. 推荐阅读最短路径（按序）</h2><ol>
+<li>Anthropic《Effective context engineering for AI agents》——全书母文；</li>
+<li>Chroma《Context Rot》+《Lost in the Middle》——定律与证据；</li>
+<li>Manus《Context Engineering: Lessons from Building Manus》——生产实战；</li>
+<li>《A Survey of Context Engineering for LLMs》(arXiv:2507.13334) + 上下文压缩失败模式综述——学术框架；</li>
+<li>Anthropic《Effective harnesses for long-running agents》——长任务架构；</li>
+<li>OWASP Top 10 for LLM Applications + 上下文工程 12 点 Checklist——治理收口。</li>
+</ol>
+<h2 id="E-关键数字备忘（汇报-评审时可引用，注意口径）"><a href="#E-关键数字备忘（汇报-评审时可引用，注意口径）" class="headerlink" title="E. 关键数字备忘（汇报&#x2F;评审时可引用，注意口径）"></a>E. 关键数字备忘（汇报&#x2F;评审时可引用，注意口径）</h2><ul>
+<li>Lost-in-middle 中段准确率比首尾低 30+ pct；</li>
+<li>剪枝比全历史省 63.9% token、完成率反高 8pct，加摘要再高 12.6pct（最优 91.6%）；</li>
+<li>主动压缩降峰值 token 26–54%；预载改按需 45K→12K token、准确率 72%→91%；</li>
+<li>系统提示约 1,500 token 后边际递减；</li>
+<li>多 Agent 研究系统 +90.2% 质量、约 15× token；子 Agent 摘要回传约 1–2K；</li>
+<li>Manus 单任务约 50 次工具调用、输入:输出 ≈ 100:1；缓存输入价约为未缓存 1&#x2F;10。</li>
+</ul>
+<p>注：以上多为特定模型&#x2F;任务&#x2F;厂商口径下的实验值，用于建立量级直觉，落地时以你自己场景的实测为准；标注”第三方观察”的结论不要当作精确指标。</p>
+<hr>
+<p><em>本手册与《上下文治理系统学习大纲》《记忆与上下文学习大纲》《上下文治理交互式手册》配套使用。学完本手册后，建议沿”记忆”主线继续：长期记忆的写入、组织、检索、遗忘与组件选型。</em></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://qiaoxin6.github.io">Jo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://qiaoxin6.github.io/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/">https://qiaoxin6.github.io/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://qiaoxin6.github.io" target="_blank">JOJO</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/tags/agent/">agent</a><a class="post-meta__tags" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/">上下文工程</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/09/02/hello-world/" title="Hello World"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Hello World</div></div><div class="info-2"><div class="info-item-1">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;  More info: Writing Run server1$ hexo server  More info: Server Generate static files1$ hexo generate  More info: Generating Deploy to remote sites1$ hexo deploy  More info: Deployment </div></div></div></a><a class="pagination-related" href="/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/" title="RAG 增量更新"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">RAG 增量更新</div></div><div class="info-2"><div class="info-item-1">在面试中除了回答基础的rag的整体流程外还有关于rag的许多优化或使用问题。 其中更新就是最重要的一个点，在实际使用中rag中的知识不可能是不变的，…… 核心原则：以文档id作为主键做原子替换，chuck永远是文档的派生数据。 永远不要只更新变化的chuck ，那是万恶之源。    1.数模型数设计12345678910111213141516171819202122232425262728-- 文档表：唯一真相来源CREATE TABLE documents (  doc_id      VARCHAR PRIMARY KEY,   -- 文档唯一ID（如 飞书file_token / URL hash）  title       VARCHAR,  source      VARCHAR,               -- 来源：feishu/confluence/upload  source_url  VARCHAR,  version     INT,                   -- 版本号，每次修改 +1  status      VARCHAR,      ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/" title="RAG 增量更新"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-01</div><div class="info-item-2">RAG 增量更新</div></div><div class="info-2"><div class="info-item-1">在面试中除了回答基础的rag的整体流程外还有关于rag的许多优化或使用问题。 其中更新就是最重要的一个点，在实际使用中rag中的知识不可能是不变的，…… 核心原则：以文档id作为主键做原子替换，chuck永远是文档的派生数据。 永远不要只更新变化的chuck ，那是万恶之源。    1.数模型数设计12345678910111213141516171819202122232425262728-- 文档表：唯一真相来源CREATE TABLE documents (  doc_id      VARCHAR PRIMARY KEY,   -- 文档唯一ID（如 飞书file_token / URL hash）  title       VARCHAR,  source      VARCHAR,               -- 来源：feishu/confluence/upload  source_url  VARCHAR,  version     INT,                   -- 版本号，每次修改 +1  status      VARCHAR,      ...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="giscus-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Jo</div><div class="author-info-description">Jo 的个人博客，记录技术学习与生活思考</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context-Engineering-Governance-Handbook%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">上下文治理学习手册（Context Engineering &amp; Governance Handbook）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E5%BC%80%E7%AF%87%EF%BC%9A%E5%85%88%E5%BB%BA%E7%AB%8B%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">0. 开篇：先建立正确的心智模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9D%E4%B8%8A%E4%B8%8B%E6%96%87%E2%80%9D%E7%AA%81%E7%84%B6%E6%88%90%E4%BA%86%E4%B8%80%E9%97%A8%E5%AD%A6%E9%97%AE"><span class="toc-number">1.1.1.</span> <span class="toc-text">0.1 为什么”上下文”突然成了一门学问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0-2-%E4%B8%80%E5%BC%A0%E6%80%BB%E5%9B%BE%EF%BC%9A%E5%9B%9B%E5%9D%97%E5%B7%A5%E4%BD%9C-%E4%BA%94%E5%B1%82%E7%AA%97%E5%8F%A3"><span class="toc-number">1.1.2.</span> <span class="toc-text">0.2 一张总图：四块工作 + 五层窗口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0-3-%E8%B4%AF%E7%A9%BF%E5%85%A8%E4%B9%A6%E7%9A%84%E7%AC%AC%E4%B8%80%E6%80%A7%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.3.</span> <span class="toc-text">0.3 贯穿全书的第一性原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0-4-%E6%9C%AF%E8%AF%AD%E9%80%9F%E6%9F%A5%E8%A1%A8%EF%BC%88%E8%AF%BB%E5%85%A8%E4%B9%A6%E5%89%8D%E8%BF%87%E4%B8%80%E9%81%8D%EF%BC%89"><span class="toc-number">1.1.4.</span> <span class="toc-text">0.4 术语速查表（读全书前过一遍）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Part-I-%C2%B7-%E5%8E%9F%E7%90%86%E4%B8%8E%E9%97%AE%E9%A2%98%E5%9F%9F"><span class="toc-number">2.</span> <span class="toc-text">Part I · 原理与问题域</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#M1-%E6%A6%82%E5%BF%B5%E5%9C%B0%E5%9B%BE%EF%BC%9A%E4%BB%8E-Prompt-Engineering-%E5%88%B0-Context-Governance"><span class="toc-number">2.1.</span> <span class="toc-text">M1. 概念地图：从 Prompt Engineering 到 Context Governance</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E4%B8%89%E4%BB%A3%E8%8C%83%E5%BC%8F%E5%88%B0%E5%BA%95%E5%B7%AE%E5%9C%A8%E5%93%AA"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.1 三代范式到底差在哪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84-8-%E7%B1%BB%E6%9D%A5%E6%BA%90%EF%BC%88%E5%81%9A%E6%B2%BB%E7%90%86%E5%85%88%E8%A6%81%E2%80%9D%E7%9B%98%E5%AE%B6%E5%BA%95%E2%80%9D%EF%BC%89"><span class="toc-number">2.1.2.</span> <span class="toc-text">1.2 上下文的 8 类来源（做治理先要”盘家底”）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E5%AD%A6%E6%9C%AF%E4%B8%89%E5%88%86%E6%A1%86%E6%9E%B6%EF%BC%88%E5%B8%AE%E4%BD%A0%E6%8A%8A%E9%9B%B6%E6%95%A3%E6%8A%80%E5%B7%A7%E5%BD%92%E4%BD%8D%EF%BC%89"><span class="toc-number">2.1.3.</span> <span class="toc-text">1.3 学术三分框架（帮你把零散技巧归位）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">2.1.4.</span> <span class="toc-text">1.4 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M2-%E6%9C%89%E9%99%90%E6%B3%A8%E6%84%8F%E5%8A%9B%EF%BC%9A%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E2%80%9D%E5%A4%B1%E6%95%88%E2%80%9D"><span class="toc-number">2.2.</span> <span class="toc-text">M2. 有限注意力：上下文为什么会”失效”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Context-Rot%EF%BC%9A%E4%B8%8D%E6%98%AF%E5%A1%9E%E6%BB%A1%E6%89%8D%E5%B4%A9%EF%BC%8C%E6%98%AF%E8%B6%8A%E9%95%BF%E8%B6%8A%E9%92%9D"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.1 Context Rot：不是塞满才崩，是越长越钝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Lost-in-the-Middle%EF%BC%9A%E4%BD%8D%E7%BD%AE%E5%86%B3%E5%AE%9A%E5%91%BD%E8%BF%90"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2 Lost in the Middle：位置决定命运</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%9B%9B%E7%B1%BB%E4%B8%8A%E4%B8%8B%E6%96%87%E6%B1%A1%E6%9F%93%EF%BC%88%E8%AF%8A%E6%96%AD%E4%BB%BB%E4%BD%95%E2%80%9D%E5%8F%98%E7%AC%A8%E2%80%9D%E7%9A%84%E9%80%9A%E7%94%A8%E5%88%86%E7%B1%BB%E6%B3%95%EF%BC%89"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.3 四类上下文污染（诊断任何”变笨”的通用分类法）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E6%88%90%E6%9C%AC%E7%BB%93%E6%9E%84%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8A%E4%B8%8B%E6%96%87%E6%98%AF%E2%80%9D%E8%BE%93%E5%85%A5%E5%AF%86%E9%9B%86%E5%9E%8B%E2%80%9D%E5%BC%80%E9%94%80"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.4 成本结构：为什么上下文是”输入密集型”开销</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%9B%9B%E7%BB%84%E5%AE%9E%E8%AF%81%EF%BC%8C%E5%B8%AE%E4%BD%A0%E5%BB%BA%E7%AB%8B%E2%80%9D%E5%B0%91%E5%8D%B3%E6%98%AF%E5%A4%9A%E2%80%9D%E7%9A%84%E4%BF%A1%E5%BF%B5"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.5 四组实证，帮你建立”少即是多”的信念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E4%B8%A4%E7%A7%8D%E5%BF%85%E5%A4%87%E7%9A%84%E2%80%9D%E4%BD%93%E6%A3%80%E6%8E%A2%E9%92%88%E2%80%9D"><span class="toc-number">2.2.6.</span> <span class="toc-text">2.6 两种必备的”体检探针”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">2.2.7.</span> <span class="toc-text">2.7 本模块小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Part-II-%C2%B7-%E4%B8%8A%E4%B8%8B%E6%96%87%E7%94%9F%E6%88%90%EF%BC%9A%E4%BF%A1%E6%81%AF%E4%BB%8E%E5%93%AA%E6%9D%A5%E3%80%81%E6%80%8E%E4%B9%88%E8%BF%9B%E7%AA%97%E5%8F%A3"><span class="toc-number">3.</span> <span class="toc-text">Part II · 上下文生成：信息从哪来、怎么进窗口</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#M3-%E7%B3%BB%E7%BB%9F%E6%8C%87%E4%BB%A4%E4%B8%8E%E7%A4%BA%E4%BE%8B%E7%9A%84%E6%B2%BB%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">M3. 系统指令与示例的治理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E7%9A%84%E2%80%9D%E5%90%88%E9%80%82%E9%AB%98%E5%BA%A6%E2%80%9D%EF%BC%88Right-Altitude%EF%BC%89"><span class="toc-number">3.1.1.</span> <span class="toc-text">3.1 系统提示的”合适高度”（Right Altitude）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%9C%80%E5%B0%8F%E5%85%85%E5%88%86%E5%8E%9F%E5%88%99%EF%BC%9A%E4%BB%8E%E2%80%9D%E6%9C%80%E5%BC%BA%E6%A8%A1%E5%9E%8B-%E6%9C%80%E5%B0%8F%E6%8F%90%E7%A4%BA%E2%80%9D%E8%B5%B7%E8%B7%91"><span class="toc-number">3.1.2.</span> <span class="toc-text">3.2 最小充分原则：从”最强模型+最小提示”起跑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Few-shot-%E7%A4%BA%E4%BE%8B%E6%98%AF%E9%9C%80%E8%A6%81%E2%80%9D%E7%AE%A1%E7%90%86%E2%80%9D%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E8%B5%84%E4%BA%A7"><span class="toc-number">3.1.3.</span> <span class="toc-text">3.3 Few-shot 示例是需要”管理”的上下文资产</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%8A%8A%E6%8F%90%E7%A4%BA%E5%BD%93%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86"><span class="toc-number">3.1.4.</span> <span class="toc-text">3.4 把提示当代码管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">3.1.5.</span> <span class="toc-text">3.5 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M4-%E5%B7%A5%E5%85%B7%E4%B8%8E%E5%8A%A8%E4%BD%9C%E7%A9%BA%E9%97%B4%E6%B2%BB%E7%90%86%EF%BC%88%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%89"><span class="toc-number">3.2.</span> <span class="toc-text">M4. 工具与动作空间治理（最被低估的上下文）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%B7%A5%E5%85%B7%E5%AE%9A%E4%B9%89%E6%98%AF%E2%80%9D%E9%9A%90%E5%BD%A2%E7%A8%8E%E2%80%9D"><span class="toc-number">3.2.1.</span> <span class="toc-text">4.1 为什么工具定义是”隐形税”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%A5%BD%E5%B7%A5%E5%85%B7%E7%9A%84%E5%9B%9B%E6%9D%A1%E8%AE%BE%E8%AE%A1%E5%87%86%E5%88%99"><span class="toc-number">3.2.2.</span> <span class="toc-text">4.2 好工具的四条设计准则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99%EF%BC%9AMask-don%E2%80%99t-remove%EF%BC%88%E9%81%AE%E8%94%BD%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E5%88%A0%E9%99%A4%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">4.3 核心原则：Mask, don’t remove（遮蔽，而不是删除）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E5%B1%82%E7%BA%A7%E5%8C%96%E5%8A%A8%E4%BD%9C%E7%A9%BA%E9%97%B4%EF%BC%9A%E6%8A%8A%E5%B7%A5%E5%85%B7%E5%AE%9A%E4%B9%89%E2%80%9D%E7%A7%BB%E5%87%BA%E7%AA%97%E5%8F%A3%E2%80%9D"><span class="toc-number">3.2.4.</span> <span class="toc-text">4.4 层级化动作空间：把工具定义”移出窗口”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-Tool-Description-Engineering"><span class="toc-number">3.2.5.</span> <span class="toc-text">4.5 Tool Description Engineering</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">3.2.6.</span> <span class="toc-text">4.6 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M5-%E7%9F%A5%E8%AF%86%E4%BE%9B%E7%BB%99%EF%BC%9ARAG%E3%80%81Just-in-Time-%E4%B8%8E%E6%B8%90%E8%BF%9B%E6%8A%AB%E9%9C%B2"><span class="toc-number">3.3.</span> <span class="toc-text">M5. 知识供给：RAG、Just-in-Time 与渐进披露</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E4%B8%A4%E7%A7%8D%E4%BE%9B%E7%BB%99%E5%93%B2%E5%AD%A6%EF%BC%9A%E6%8E%A8%E7%90%86%E5%89%8D%E6%A3%80%E7%B4%A2-vs-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8F%96%E7%94%A8"><span class="toc-number">3.3.1.</span> <span class="toc-text">5.1 两种供给哲学：推理前检索 vs 运行时取用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E6%B8%90%E8%BF%9B%E6%8A%AB%E9%9C%B2%EF%BC%88Progressive-Disclosure%EF%BC%89%EF%BC%9A%E5%83%8F%E4%BA%BA%E7%94%A8%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%80%E6%A0%B7"><span class="toc-number">3.3.2.</span> <span class="toc-text">5.2 渐进披露（Progressive Disclosure）：像人用文件系统一样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E6%B7%B7%E5%90%88%E7%AD%96%E7%95%A5%EF%BC%9A%E4%B8%8D%E6%98%AF%E4%BA%8C%E9%80%89%E4%B8%80"><span class="toc-number">3.3.3.</span> <span class="toc-text">5.3 混合策略：不是二选一</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-%E4%BB%A3%E7%A0%81%E5%BA%93%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84%E4%B8%93%E9%97%A8%E5%81%9A%E6%B3%95"><span class="toc-number">3.3.4.</span> <span class="toc-text">5.4 代码库上下文的专门做法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E6%9F%A5%E8%AF%A2%E5%A2%9E%E5%BC%BA%E4%B8%8E%E4%BA%94%E7%A7%8D%E2%80%9D%E6%8B%89%E5%8F%96%E2%80%9D%E6%9C%BA%E5%88%B6"><span class="toc-number">3.3.5.</span> <span class="toc-text">5.5 查询增强与五种”拉取”机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">3.3.6.</span> <span class="toc-text">5.6 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M6-%E8%AE%B0%E5%BF%86%E4%B8%8E%E5%A4%96%E9%83%A8%E7%8A%B6%E6%80%81%E4%BD%9C%E4%B8%BA%E4%B8%8A%E4%B8%8B%E6%96%87%E6%9D%A5%E6%BA%90%EF%BC%88%E6%8E%A5%E5%8F%A3%E5%B1%82%EF%BC%89"><span class="toc-number">3.4.</span> <span class="toc-text">M6. 记忆与外部状态作为上下文来源（接口层）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E4%B8%89%E7%A7%8D%E2%80%9D%E8%BF%87%E5%8E%BB%E7%9A%84%E4%BF%A1%E6%81%AF%E2%80%9D%EF%BC%8C%E4%B8%89%E7%A7%8D%E8%BF%9B%E7%AA%97%E5%BD%A2%E6%80%81"><span class="toc-number">3.4.1.</span> <span class="toc-text">6.1 三种”过去的信息”，三种进窗形态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%85%B3%E9%94%AE%E5%8C%BA%E5%88%86%EF%BC%9AHistory-%E2%89%A0-State"><span class="toc-number">3.4.2.</span> <span class="toc-text">6.2 关键区分：History ≠ State</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E8%AE%B0%E5%BF%86%E5%8F%AC%E5%9B%9E%E4%B9%9F%E8%A6%81%E2%80%9D%E9%A2%84%E7%AE%97-%E8%BF%87%E6%BB%A4%E2%80%9D"><span class="toc-number">3.4.3.</span> <span class="toc-text">6.3 记忆召回也要”预算 + 过滤”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E7%94%BB%E5%87%BA%E2%80%9D%E6%B3%A8%E5%85%A5%E6%97%B6%E5%BA%8F%E5%9B%BE%E2%80%9D"><span class="toc-number">3.4.4.</span> <span class="toc-text">6.4 画出”注入时序图”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">3.4.5.</span> <span class="toc-text">6.5 本模块小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Part-III-%C2%B7-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%A4%84%E7%90%86%E4%B8%8E%E7%AE%A1%E7%90%86%EF%BC%9A%E7%AA%97%E5%8F%A3%E5%86%85%E7%9A%84%E8%BF%90%E7%BB%B4"><span class="toc-number">4.</span> <span class="toc-text">Part III · 上下文处理与管理：窗口内的运维</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#M7-Token-%E9%A2%84%E7%AE%97%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E9%80%89%E6%8B%A9"><span class="toc-number">4.1.</span> <span class="toc-text">M7. Token 预算与上下文选择</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E5%85%88%E7%AE%97%E8%B4%A6%EF%BC%8C%E5%86%8D%E8%A3%85%E9%85%8D%EF%BC%9A%E5%8A%A8%E6%80%81%E9%A2%84%E7%AE%97%E5%85%AC%E5%BC%8F"><span class="toc-number">4.1.1.</span> <span class="toc-text">7.1 先算账，再装配：动态预算公式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E5%88%86%E5%B1%82%E9%85%8D%E9%A2%9D%EF%BC%9A%E5%9B%BA%E5%AE%9A%E5%B1%82%E4%B8%8D%E9%A9%B1%E9%80%90%EF%BC%8C%E5%BC%B9%E6%80%A7%E5%B1%82%E6%8C%89%E8%A7%84%E5%88%99%E8%A3%81%E5%89%AA"><span class="toc-number">4.1.2.</span> <span class="toc-text">7.2 分层配额：固定层不驱逐，弹性层按规则裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E4%B8%80%E4%B8%AA%E6%9C%80%E5%B0%8F-ContextAssembler%EF%BC%88%E4%BC%AA%E4%BB%A3%E7%A0%81%EF%BC%89"><span class="toc-number">4.1.3.</span> <span class="toc-text">7.3 一个最小 ContextAssembler（伪代码）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E9%80%89%E6%8B%A9%E4%B8%8E%E8%BF%87%E6%BB%A4%EF%BC%9A%E4%B8%8D%E6%98%AF%E6%A3%80%E7%B4%A2%E5%88%B0%E4%BB%80%E4%B9%88%E6%94%BE%E4%BB%80%E4%B9%88"><span class="toc-number">4.1.4.</span> <span class="toc-text">7.4 选择与过滤：不是检索到什么放什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E4%B8%8A%E4%B8%8B%E6%96%87%E6%B6%88%E8%9E%8D%EF%BC%9A%E9%87%8F%E5%8C%96%E6%AF%8F%E7%B1%BB%E6%9D%A5%E6%BA%90%E7%9A%84%E8%BE%B9%E9%99%85%E8%B4%A1%E7%8C%AE"><span class="toc-number">4.1.5.</span> <span class="toc-text">7.5 上下文消融：量化每类来源的边际贡献</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">4.1.6.</span> <span class="toc-text">7.6 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M8-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8E%8B%E7%BC%A9-Compaction%EF%BC%88%E6%A0%B8%E5%BF%83%E4%B8%AD%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">M8. 上下文压缩 Compaction（核心中的核心）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E5%8E%8B%E7%BC%A9%E7%AD%96%E7%95%A5%E8%B0%B1%EF%BC%9A%E4%BB%8E%E6%9C%80%E7%B2%97%E6%9A%B4%E5%88%B0%E6%9C%80%E7%B2%BE%E7%BB%86"><span class="toc-number">4.2.1.</span> <span class="toc-text">8.1 压缩策略谱：从最粗暴到最精细</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-Compaction-%E7%9A%84%E6%A0%87%E5%87%86%E6%B5%81%E7%A8%8B%E4%B8%8E%E8%B0%83%E4%BC%98%E9%A1%BA%E5%BA%8F"><span class="toc-number">4.2.2.</span> <span class="toc-text">8.2 Compaction 的标准流程与调优顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E6%9C%80%E8%BD%BB%E9%87%8F%E3%80%81%E6%9C%80%E5%85%88%E8%AF%A5%E5%81%9A%E7%9A%84%EF%BC%9ATool-result-clearing"><span class="toc-number">4.2.3.</span> <span class="toc-text">8.3 最轻量、最先该做的：Tool-result clearing</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E4%B8%BB%E5%8A%A8%E5%8E%8B%E7%BC%A9%EF%BC%9A%E5%88%AB%E7%AD%89%E6%92%9E%E5%A2%99"><span class="toc-number">4.2.4.</span> <span class="toc-text">8.4 主动压缩：别等撞墙</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-%E5%8F%AF%E6%81%A2%E5%A4%8D%E5%8E%8B%E7%BC%A9%EF%BC%9A%E5%88%A0%E5%86%85%E5%AE%B9%EF%BC%8C%E4%BD%86%E4%B8%80%E5%AE%9A%E7%95%99%E6%8C%87%E9%92%88%EF%BC%88%E6%9C%80%E9%87%8D%E8%A6%81%E7%9A%84%E8%AE%BE%E8%AE%A1%E8%A7%82%EF%BC%89"><span class="toc-number">4.2.5.</span> <span class="toc-text">8.5 可恢复压缩：删内容，但一定留指针（最重要的设计观）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-6-%E5%A4%9A%E8%BD%AE%E5%8E%8B%E7%BC%A9%E7%9A%84%E6%BC%82%E7%A7%BB%E9%97%AE%E9%A2%98%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%AF%B9%E7%AD%96"><span class="toc-number">4.2.6.</span> <span class="toc-text">8.6 多轮压缩的漂移问题，以及对策</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-7-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">4.2.7.</span> <span class="toc-text">8.7 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M9-%E7%BB%84%E7%BB%87%E3%80%81%E6%8E%92%E5%BA%8F%E4%B8%8E%E6%B3%A8%E6%84%8F%E5%8A%9B%E5%A1%91%E5%BD%A2"><span class="toc-number">4.3.</span> <span class="toc-text">M9. 组织、排序与注意力塑形</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E4%BA%94%E5%B1%82%E5%B8%83%E5%B1%80%EF%BC%9A%E6%8A%8A%E5%AF%B9%E7%9A%84%E4%B8%9C%E8%A5%BF%E6%94%BE%E5%9C%A8%E5%AF%B9%E7%9A%84%E5%B1%82"><span class="toc-number">4.3.1.</span> <span class="toc-text">9.1 五层布局：把对的东西放在对的层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E5%88%A9%E7%94%A8%E9%A6%96%E5%9B%A0%E4%B8%8E%E8%BF%91%E5%9B%A0%EF%BC%8C%E4%B8%BB%E5%8A%A8%E2%80%9D%E5%A1%91%E5%BD%A2%E2%80%9D%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="toc-number">4.3.2.</span> <span class="toc-text">9.2 利用首因与近因，主动”塑形”注意力</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E7%BB%93%E6%9E%84%E5%8C%96%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%8A%8A%E2%80%9D%E8%84%91%E5%AE%B9%E9%87%8F%E2%80%9D%E6%94%BE%E5%88%B0%E7%AA%97%E5%8F%A3%E5%A4%96"><span class="toc-number">4.3.3.</span> <span class="toc-text">9.3 结构化笔记：把”脑容量”放到窗口外</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-Append-only-%E4%B8%8E%E7%A1%AE%E5%AE%9A%E6%80%A7%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">4.3.4.</span> <span class="toc-text">9.4 Append-only 与确定性序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-5-%E4%BF%9D%E7%95%99%E9%94%99%E8%AF%AF%EF%BC%9A%E5%A4%B1%E8%B4%A5%E7%97%95%E8%BF%B9%E6%98%AF%E6%9C%89%E4%BB%B7%E5%80%BC%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-number">4.3.5.</span> <span class="toc-text">9.5 保留错误：失败痕迹是有价值的上下文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-6-%E7%94%A8%E7%BB%93%E6%9E%84%E5%8C%96%E5%88%86%E5%8C%BA%E5%90%8C%E6%97%B6%E6%9C%8D%E5%8A%A1%E2%80%9D%E7%90%86%E8%A7%A3%E2%80%9D%E5%92%8C%E2%80%9D%E5%AE%89%E5%85%A8%E2%80%9D"><span class="toc-number">4.3.6.</span> <span class="toc-text">9.6 用结构化分区同时服务”理解”和”安全”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-7-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">4.3.7.</span> <span class="toc-text">9.7 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M10-%E7%BC%93%E5%AD%98%E4%B8%8E%E6%8E%A8%E7%90%86%E6%80%A7%E8%83%BD%E5%B7%A5%E7%A8%8B"><span class="toc-number">4.4.</span> <span class="toc-text">M10. 缓存与推理性能工程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-KV-Cache-%E6%98%AF%E6%80%8E%E4%B9%88%E7%9C%81%E9%92%B1%E7%9A%84"><span class="toc-number">4.4.1.</span> <span class="toc-text">10.1 KV-Cache 是怎么省钱的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-%E7%BC%93%E5%AD%98%E5%8F%8B%E5%A5%BD%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84%E5%9B%9B%E8%A6%81%E7%B4%A0"><span class="toc-number">4.4.2.</span> <span class="toc-text">10.2 缓存友好上下文的四要素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E4%B8%8A%E4%B8%8B%E6%96%87%E7%BB%93%E6%9E%84%E8%A6%81%E4%B8%BA%E7%BC%93%E5%AD%98%E8%80%8C%E8%AE%BE%E8%AE%A1"><span class="toc-number">4.4.3.</span> <span class="toc-text">10.3 上下文结构要为缓存而设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E6%88%90%E6%9C%AC%E6%A8%A1%E5%9E%8B%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88-Manus-%E8%AF%B4%E5%91%BD%E4%B8%AD%E7%8E%87%E6%98%AF%E7%AC%AC%E4%B8%80%E6%8C%87%E6%A0%87"><span class="toc-number">4.4.4.</span> <span class="toc-text">10.4 成本模型：为什么 Manus 说命中率是第一指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E5%9D%8F%E5%91%B3%E9%81%93%E8%87%AA%E6%9F%A5%E6%B8%85%E5%8D%95"><span class="toc-number">4.4.5.</span> <span class="toc-text">10.5 缓存击穿坏味道自查清单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">4.4.6.</span> <span class="toc-text">10.6 本模块小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Part-IV-%C2%B7-%E6%9E%B6%E6%9E%84%E7%BA%A7%E4%B8%8A%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">Part IV · 架构级上下文治理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#M11-%E5%AD%90-Agent%EF%BC%9A%E7%94%A8%E5%A4%9A%E4%B8%AA%E5%B9%B2%E5%87%80%E7%AA%97%E5%8F%A3%E6%9B%BF%E4%BB%A3%E4%B8%80%E4%B8%AA%E8%84%8F%E7%AA%97%E5%8F%A3"><span class="toc-number">5.1.</span> <span class="toc-text">M11. 子 Agent：用多个干净窗口替代一个脏窗口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%EF%BC%9A%E4%B8%8E%E5%85%B6%E5%8E%8B%E7%BC%A9%EF%BC%8C%E4%B8%8D%E5%A6%82%E9%9A%94%E7%A6%BB"><span class="toc-number">5.1.1.</span> <span class="toc-text">11.1 核心思想：与其压缩，不如隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E6%94%B6%E7%9B%8A%E4%B8%8E%E4%BB%A3%E4%BB%B7%EF%BC%88%E5%8A%A1%E5%BF%85%E5%90%8C%E6%97%B6%E8%AE%B0%E4%BD%8F%EF%BC%89"><span class="toc-number">5.1.2.</span> <span class="toc-text">11.2 收益与代价（务必同时记住）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E4%B8%89%E7%A7%8D%E4%B8%8A%E4%B8%8B%E6%96%87%E7%A7%BB%E4%BA%A4%E6%9C%BA%E5%88%B6"><span class="toc-number">5.1.3.</span> <span class="toc-text">11.3 三种上下文移交机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-%E8%AE%BE%E8%AE%A1%E9%9A%BE%E7%82%B9%EF%BC%9A%E5%9B%9E%E6%B5%81%E5%A5%91%E7%BA%A6%EF%BC%88%E6%91%98%E8%A6%81%E5%BF%85%E7%84%B6%E6%9C%89%E6%8D%9F%EF%BC%89"><span class="toc-number">5.1.4.</span> <span class="toc-text">11.4 设计难点：回流契约（摘要必然有损）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-5-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E7%94%A8%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%88%AB%E7%94%A8"><span class="toc-number">5.1.5.</span> <span class="toc-text">11.5 什么时候用、什么时候别用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">5.1.6.</span> <span class="toc-text">11.6 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M12-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E3%80%81%E4%BC%9A%E8%AF%9D%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%B8%8E-Harness"><span class="toc-number">5.2.</span> <span class="toc-text">M12. 状态管理、会话生命周期与 Harness</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9D%E5%8F%AA%E5%81%9A-compaction%E2%80%9D%E6%92%91%E4%B8%8D%E8%B5%B7%E8%B6%85%E9%95%BF%E4%BB%BB%E5%8A%A1"><span class="toc-number">5.2.1.</span> <span class="toc-text">12.1 为什么”只做 compaction”撑不起超长任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-Harness-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">5.2.2.</span> <span class="toc-text">12.2 Harness 到底是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-History-%E4%B8%8E-State-%E7%9A%84%E5%88%86%E7%A6%BB%E4%B8%8E%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-number">5.2.3.</span> <span class="toc-text">12.3 History 与 State 的分离与持久化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-4-%E4%BC%9A%E8%AF%9D%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">5.2.4.</span> <span class="toc-text">12.4 会话生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-5-%E9%95%BF%E8%BF%90%E8%A1%8C%E9%80%80%E5%8C%96%E7%8E%B0%E8%B1%A1%E4%B8%8E%E5%BA%94%E5%AF%B9"><span class="toc-number">5.2.5.</span> <span class="toc-text">12.5 长运行退化现象与应对</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">5.2.6.</span> <span class="toc-text">12.6 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M13-%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6%E4%B8%8E%E5%B9%B3%E5%8F%B0%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E5%93%B2%E5%AD%A6%E5%AF%B9%E6%AF%94"><span class="toc-number">5.3.</span> <span class="toc-text">M13. 主流框架与平台的上下文哲学对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#13-1-%E4%B8%A4%E6%9D%A1%E8%B7%AF%E7%BA%BF%EF%BC%9A%E6%98%BE%E5%BC%8F%E7%8A%B6%E6%80%81%E6%B4%BE-vs-%E5%AF%B9%E8%AF%9D%E6%B5%81%E5%8A%A8%E6%B4%BE"><span class="toc-number">5.3.1.</span> <span class="toc-text">13.1 两条路线：显式状态派 vs 对话流动派</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-2-%E6%98%BE%E5%BC%8F%E7%8A%B6%E6%80%81%E6%B4%BE%E7%B2%BE%E8%AF%BB"><span class="toc-number">5.3.2.</span> <span class="toc-text">13.2 显式状态派精读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-3-%E5%AF%B9%E8%AF%9D%E6%B5%81%E5%8A%A8%E6%B4%BE%E4%B8%8E%E5%8E%82%E5%95%86%E5%8E%9F%E7%94%9F-SDK"><span class="toc-number">5.3.3.</span> <span class="toc-text">13.3 对话流动派与厂商原生 SDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-4-%E4%BD%8E%E4%BB%A3%E7%A0%81-%E4%BC%81%E4%B8%9A%E6%8A%80%E6%9C%AF%E6%A0%88"><span class="toc-number">5.3.4.</span> <span class="toc-text">13.4 低代码 &#x2F; 企业技术栈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-5-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%B8%85%E5%8D%95"><span class="toc-number">5.3.5.</span> <span class="toc-text">13.5 选型决策清单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">5.3.6.</span> <span class="toc-text">13.6 本模块小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Part-V-%C2%B7-%E7%AE%A1%E6%8E%A7%E4%B8%8E%E5%AE%9E%E6%88%98"><span class="toc-number">6.</span> <span class="toc-text">Part V · 管控与实战</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#M14-%E5%AE%89%E5%85%A8%E4%B8%8E%E4%BF%A1%E4%BB%BB%E8%BE%B9%E7%95%8C%EF%BC%88%E6%B2%BB%E7%90%86%E7%9A%84%E5%BA%95%E7%BA%BF%EF%BC%89"><span class="toc-number">6.1.</span> <span class="toc-text">M14. 安全与信任边界（治理的底线）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B1%82%E7%9A%84%E5%9B%9B%E7%B1%BB%E6%94%BB%E5%87%BB%E9%9D%A2"><span class="toc-number">6.1.1.</span> <span class="toc-text">14.1 上下文层的四类攻击面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-%E6%9C%80%E9%9A%90%E8%94%BD%E7%9A%84%E2%80%9D%E8%B7%A8%E4%BC%9A%E8%AF%9D%E6%B1%A1%E6%9F%93%E9%93%BE%E2%80%9D"><span class="toc-number">6.1.2.</span> <span class="toc-text">14.2 最隐蔽的”跨会话污染链”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-%E9%98%B2%E7%BA%BF%E4%B8%80%EF%BC%9A%E4%BF%A1%E4%BB%BB%E5%88%86%E7%BA%A7%E4%B8%8E%E7%BB%93%E6%9E%84%E9%9A%94%E7%A6%BB"><span class="toc-number">6.1.3.</span> <span class="toc-text">14.3 防线一：信任分级与结构隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-%E9%98%B2%E7%BA%BF%E4%BA%8C%EF%BC%9A%E7%AD%96%E7%95%A5%E4%BB%A3%E7%A0%81%E5%8C%96-%E6%9C%80%E5%B0%8F%E6%9D%83%E9%99%90%EF%BC%88%E6%9C%80%E5%8F%AF%E9%9D%A0%E7%9A%84%E4%B8%80%E9%81%93%EF%BC%89"><span class="toc-number">6.1.4.</span> <span class="toc-text">14.4 防线二：策略代码化 + 最小权限（最可靠的一道）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-5-%E9%98%B2%E7%BA%BF%E4%B8%89%EF%BC%9A%E8%AE%B0%E5%BF%86%E5%86%99%E5%85%A5%E4%B8%8E%E5%8F%AC%E5%9B%9E%E7%9A%84%E5%85%B3%E5%8D%A1"><span class="toc-number">6.1.5.</span> <span class="toc-text">14.5 防线三：记忆写入与召回的关卡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-6-%E7%BA%A2%E9%98%9F%E8%87%AA%E6%B5%8B%EF%BC%9A20-%E6%9D%A1%E6%B3%A8%E5%85%A5%E7%94%A8%E4%BE%8B"><span class="toc-number">6.1.6.</span> <span class="toc-text">14.6 红队自测：20 条注入用例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-7-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">6.1.7.</span> <span class="toc-text">14.7 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M15-%E5%8F%AF%E8%A7%82%E6%B5%8B%E3%80%81%E8%AF%84%E4%BC%B0%E4%B8%8E%E6%88%90%E6%9C%AC%E6%B2%BB%E7%90%86%EF%BC%88%E8%AE%A9%E6%94%B9%E8%BF%9B%E5%8F%AF%E5%BA%A6%E9%87%8F%EF%BC%89"><span class="toc-number">6.2.</span> <span class="toc-text">M15. 可观测、评估与成本治理（让改进可度量）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E6%A0%B8%E5%BF%83%E6%80%81%E5%BA%A6%EF%BC%9A%E6%8B%92%E7%BB%9D%E2%80%9D%E4%BD%93%E6%84%9F%E5%8F%98%E5%A5%BD%E2%80%9D"><span class="toc-number">6.2.1.</span> <span class="toc-text">15.1 核心态度：拒绝”体感变好”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-2-%E5%8F%AF%E8%A7%82%E6%B5%8B%EF%BC%9A%E8%AE%A9%E6%AF%8F%E6%AE%B5%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8F%AF%E8%BF%BD%E6%BA%AF"><span class="toc-number">6.2.2.</span> <span class="toc-text">15.2 可观测：让每段上下文可追溯</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-3-%E8%AF%84%E4%BC%B0%E4%BD%93%E7%B3%BB%EF%BC%9A%E5%9B%9B%E5%B1%82%E6%8C%87%E6%A0%87"><span class="toc-number">6.2.3.</span> <span class="toc-text">15.3 评估体系：四层指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-4-%E6%88%90%E6%9C%AC%E4%B8%8E%E6%80%A7%E8%83%BD-SLO-%E7%9C%8B%E6%9D%BF"><span class="toc-number">6.2.4.</span> <span class="toc-text">15.4 成本与性能 SLO 看板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-5-%E4%B8%80%E4%B8%AA%E6%94%B9%E5%8A%A8%E7%9A%84%E6%A0%87%E5%87%86%E9%97%AD%E7%8E%AF"><span class="toc-number">6.2.5.</span> <span class="toc-text">15.5 一个改动的标准闭环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-6-%E6%9C%AC%E6%A8%A1%E5%9D%97%E5%B0%8F%E7%BB%93"><span class="toc-number">6.2.6.</span> <span class="toc-text">15.6 本模块小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#M16-%E6%A1%88%E4%BE%8B%E7%B2%BE%E8%AF%BB%E4%B8%8E-Capstone-%E6%AF%95%E4%B8%9A%E9%A1%B9%E7%9B%AE"><span class="toc-number">6.3.</span> <span class="toc-text">M16. 案例精读与 Capstone 毕业项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#16-1-%E5%85%AD%E4%B8%AA%E5%A4%B4%E9%83%A8%E5%AE%9E%E8%B7%B5%EF%BC%8C%E5%88%86%E5%88%AB%E7%9C%8B%E5%AE%83%E6%80%8E%E4%B9%88%E5%81%9A%E5%9B%9B%E5%9D%97%E5%B7%A5%E4%BD%9C"><span class="toc-number">6.3.1.</span> <span class="toc-text">16.1 六个头部实践，分别看它怎么做四块工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-2-Capstone%EF%BC%9A%E4%B8%BA%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E-Agent-%E5%81%9A%E4%B8%8A%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E6%94%B9%E9%80%A0%EF%BC%881%E2%80%932-%E5%91%A8%EF%BC%89"><span class="toc-number">6.3.2.</span> <span class="toc-text">16.2 Capstone：为一个真实 Agent 做上下文治理改造（1–2 周）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#16-3-%E6%AF%95%E4%B8%9A%E8%87%AA%E6%B5%8B%EF%BC%88%E8%83%BD%E7%AD%94%E4%B8%8A%E6%9D%A5%E5%8D%B3%E8%BF%87%E5%85%B3%EF%BC%89"><span class="toc-number">6.3.3.</span> <span class="toc-text">16.3 毕业自测（能答上来即过关）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%99%84%E5%BD%95"><span class="toc-number">7.</span> <span class="toc-text">附录</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#A-%E5%85%A8%E4%B9%A6%E4%B8%80%E9%A1%B5%E9%80%9F%E6%9F%A5%EF%BC%88%E6%8A%8A%E6%96%B9%E6%B3%95%E9%92%89%E5%88%B0%E2%80%9D%E5%B1%82-%C3%97-%E5%8A%A8%E4%BD%9C%E2%80%9D%E4%B8%8A%EF%BC%89"><span class="toc-number">7.1.</span> <span class="toc-text">A. 全书一页速查（把方法钉到”层 × 动作”上）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B-%E4%B8%8A%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E8%90%BD%E5%9C%B0%E6%A3%80%E6%9F%A5%E6%B8%85%E5%8D%95%EF%BC%88%E5%8F%AF%E7%9B%B4%E6%8E%A5%E7%94%A8%E4%BA%8E-Code-Review%EF%BC%89"><span class="toc-number">7.2.</span> <span class="toc-text">B. 上下文治理落地检查清单（可直接用于 Code Review）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-4-%E5%91%A8-8-%E5%91%A8%E5%AD%A6%E4%B9%A0%E8%8A%82%E5%A5%8F"><span class="toc-number">7.3.</span> <span class="toc-text">C. 4 周 &#x2F; 8 周学习节奏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#D-%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%EF%BC%88%E6%8C%89%E5%BA%8F%EF%BC%89"><span class="toc-number">7.4.</span> <span class="toc-text">D. 推荐阅读最短路径（按序）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#E-%E5%85%B3%E9%94%AE%E6%95%B0%E5%AD%97%E5%A4%87%E5%BF%98%EF%BC%88%E6%B1%87%E6%8A%A5-%E8%AF%84%E5%AE%A1%E6%97%B6%E5%8F%AF%E5%BC%95%E7%94%A8%EF%BC%8C%E6%B3%A8%E6%84%8F%E5%8F%A3%E5%BE%84%EF%BC%89"><span class="toc-number">7.5.</span> <span class="toc-text">E. 关键数字备忘（汇报&#x2F;评审时可引用，注意口径）</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/02/hello-world/" title="Hello World">Hello World</a><time datetime="2026-09-02T10:09:34.357Z" title="发表于 2026-09-02 18:09:34">2026-09-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/" title="上下文治理学习手册（Context Engineering &amp; Governance Handbook）.md">上下文治理学习手册（Context Engineering &amp; Governance Handbook）.md</a><time datetime="2026-09-01T16:04:27.000Z" title="发表于 2026-09-02 00:04:27">2026-09-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/" title="RAG 增量更新">RAG 增量更新</a><time datetime="2026-09-01T07:25:00.000Z" title="发表于 2026-09-01 15:25:00">2026-09-01</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jo</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = {"data-lang":"zh-CN","data-input-position":"bottom"}
+
+  const getGiscusTheme = theme => theme === 'dark' ? 'dark' : 'light'
+
+  const createScriptElement = config => {
+    const ele = document.createElement('script')
+    Object.entries(config).forEach(([key, value]) => {
+      ele.setAttribute(key, value)
+    })
+    return ele
+  }
+
+  const loadGiscus = (el = document, key) => {
+    const mappingConfig = isShuoshuo
+      ? { 'data-mapping': 'specific', 'data-term': key }
+      : { 'data-mapping': (option && option['data-mapping']) || 'pathname' }
+
+    const giscusConfig = {
+      src: 'https://giscus.app/client.js',
+      'data-repo': 'qiaoxin6/qiaoxin6.github.io',
+      'data-repo-id': 'R_kgDOUI258Q',
+      'data-category-id': 'DIC_kwDOUI258c4DEpCf',
+      'data-theme': getGiscusTheme(document.documentElement.getAttribute('data-theme')),
+      'data-reactions-enabled': '1',
+      crossorigin: 'anonymous',
+      async: true,
+      ...option,
+      ...mappingConfig
+    }
+
+    const scriptElement = createScriptElement(giscusConfig)
+
+    el.querySelector('#giscus-wrap').appendChild(scriptElement)
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyGiscus = () => {
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const changeGiscusTheme = theme => {
+    const iframe = document.querySelector('#giscus-wrap iframe')
+    if (iframe) {
+      const message = {
+        giscus: {
+          setConfig: {
+            theme: getGiscusTheme(theme)
+          }
+        }
+      }
+      iframe.contentWindow.postMessage(message, 'https://giscus.app')
+    }
+  }
+
+  btf.addGlobalFn('themeChange', changeGiscusTheme, 'giscus')
+
+  if (isShuoshuo) {
+    'Giscus' === 'Giscus'
+      ? window.shuoshuoComment = { loadComment: loadGiscus }
+      : window.loadOtherComment = loadGiscus
+    return
+  }
+
+  if ('Giscus' === 'Giscus' || !false) {
+    if (false) btf.loadComment(document.getElementById('giscus-wrap'), loadGiscus)
+    else loadGiscus()
+  } else {
+    window.loadOtherComment = loadGiscus
+  }
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
