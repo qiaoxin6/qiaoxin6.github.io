@@ -1,0 +1,756 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Agent Loop 知识手册：概念、结构与重点问题 | JOJO</title><meta name="author" content="Jo"><meta name="copyright" content="Jo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="整理时间：2026-09-09资料来源：LangChain《The Art of Loop Engineering》(2026-06)、Anthropic《Building Effective Agents》(2024-12)、ReAct 原论文 (arXiv:2210.03629, ICLR 2023) 等，完整出处见文末。  目录 什么是 Agent Loop 概念边界：Agent、Workf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Agent Loop 知识手册：概念、结构与重点问题">
+<meta property="og:url" content="https://qiaoxin6.github.io/2026/09/01/Agent%20Loop%20%E7%9F%A5%E8%AF%86%E6%89%8B%E5%86%8C%EF%BC%9A%E6%A6%82%E5%BF%B5%E3%80%81%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="JOJO">
+<meta property="og:description" content="整理时间：2026-09-09资料来源：LangChain《The Art of Loop Engineering》(2026-06)、Anthropic《Building Effective Agents》(2024-12)、ReAct 原论文 (arXiv:2210.03629, ICLR 2023) 等，完整出处见文末。  目录 什么是 Agent Loop 概念边界：Agent、Workf">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qiaoxin6.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-09-01T16:04:27.000Z">
+<meta property="article:modified_time" content="2026-09-11T13:22:00.634Z">
+<meta property="article:author" content="Jo">
+<meta property="article:tag" content="Agent Loop">
+<meta property="article:tag" content="agent">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qiaoxin6.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Agent Loop 知识手册：概念、结构与重点问题",
+  "url": "https://qiaoxin6.github.io/2026/09/01/Agent%20Loop%20%E7%9F%A5%E8%AF%86%E6%89%8B%E5%86%8C%EF%BC%9A%E6%A6%82%E5%BF%B5%E3%80%81%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98/",
+  "image": "https://qiaoxin6.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-09-01T16:04:27.000Z",
+  "dateModified": "2026-09-11T13:22:00.634Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Jo",
+      "url": "https://qiaoxin6.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://qiaoxin6.github.io/2026/09/01/Agent%20Loop%20%E7%9F%A5%E8%AF%86%E6%89%8B%E5%86%8C%EF%BC%9A%E6%A6%82%E5%BF%B5%E3%80%81%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Agent Loop 知识手册：概念、结构与重点问题',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">JOJO</span></a><a class="nav-page-title" href="/"><span class="site-name">Agent Loop 知识手册：概念、结构与重点问题</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Agent Loop 知识手册：概念、结构与重点问题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-01T16:04:27.000Z" title="发表于 2026-09-02 00:04:27">2026-09-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-11T13:22:00.634Z" title="更新于 2026-09-11 21:22:00">2026-09-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">6.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>21分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>整理时间：2026-09-09<br>资料来源：LangChain《The Art of Loop Engineering》(2026-06)、Anthropic《Building Effective Agents》(2024-12)、ReAct 原论文 (arXiv:2210.03629, ICLR 2023) 等，完整出处见文末。</p>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E4%B8%80%E4%BB%80%E4%B9%88%E6%98%AF-agent-loop">什么是 Agent Loop</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E4%BA%8C%E6%A6%82%E5%BF%B5%E8%BE%B9%E7%95%8Cagentworkflow-%E4%B8%8E-chatbot">概念边界：Agent、Workflow 与 Chatbot</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E4%B8%89%E6%BC%94%E8%BF%9B%E8%84%89%E7%BB%9C%E4%BB%8E-react-%E5%88%B0-loop-engineering">演进脉络：从 ReAct 到 Loop Engineering</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E5%9B%9B%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84%E5%9B%9B%E5%B1%82%E5%B5%8C%E5%A5%97%E5%BE%AA%E7%8E%AFlangchain-2026">核心结构：四层嵌套循环（LangChain, 2026）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E4%BA%94agent-loop-%E5%86%85%E9%83%A8%E7%9A%84%E7%BB%8F%E5%85%B8%E8%8C%83%E5%BC%8F">Agent Loop 内部的经典范式</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E5%85%AD%E7%94%9F%E4%BA%A7%E7%BA%A7-agent-loop-%E7%9A%84%E5%B7%A5%E7%A8%8B%E8%A6%81%E7%B4%A0">生产级 Agent Loop 的工程要素</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E4%B8%83%E5%B8%B8%E8%A7%81%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98%E4%B8%8E%E7%AD%94%E9%A2%98%E8%A6%81%E7%82%B9%E9%9D%A2%E8%AF%95%E5%90%91">常见重点问题与答题要点（面试向）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E5%85%AB%E5%85%B3%E9%94%AE%E6%9C%AF%E8%AF%AD%E9%80%9F%E6%9F%A5%E8%A1%A8">关键术语速查表</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yuque.com/u59107065/gr0esb/vd6w823g2ki7tf84#%E4%B9%9D%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+</ol>
+<hr>
+<h2 id="一、什么是-Agent-Loop"><a href="#一、什么是-Agent-Loop" class="headerlink" title="一、什么是 Agent Loop"></a>一、什么是 Agent Loop</h2><h3 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h3><p><strong>Agent Loop（智能体循环 &#x2F; Agentic Loop）</strong> 是驱动 AI Agent 自主完成任务的核心运行机制：给大模型（LLM）上下文，让它在一个<strong>循环</strong>中交替进行推理、调用工具、读取环境反馈，直到任务完成或触发停止条件。</p>
+<p>LangChain 在《The Art of Loop Engineering》中对最底层循环的描述是：</p>
+<p>“The core agent algorithm is simple: give the LLM context and let it call tools in a loop until it’s done.”（核心算法很简单：给 LLM 上下文，让它在循环中调用工具，直到完成。）</p>
+<p>Anthropic 在《Building Effective Agents》中的表述与之等价：</p>
+<p>“They are typically just LLMs using tools based on environmental feedback in a loop.”（Agent 本质上就是 LLM 基于环境反馈、在循环中使用工具。）</p>
+<h3 id="1-2-最小闭环"><a href="#1-2-最小闭环" class="headerlink" title="1.2 最小闭环"></a>1.2 最小闭环</h3><p>一个可运行的 Agent Loop 伪代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">messages = \[system\_prompt, user\_task]</span><br><span class="line"></span><br><span class="line">while True:</span><br><span class="line"></span><br><span class="line">  response = llm(messages, tools)          # 1. 推理：决定下一步动作</span><br><span class="line"></span><br><span class="line">  if not response.tool\_calls:              # 4. 终止判断：模型不再调用工具</span><br><span class="line"></span><br><span class="line">         return response.content              #    → 输出最终结果</span><br><span class="line"></span><br><span class="line">     for call in response.tool\_calls:</span><br><span class="line"></span><br><span class="line">         result = execute\_tool(call)          # 2. 行动：执行工具</span><br><span class="line"></span><br><span class="line">         messages.append(tool\_result(result)) # 3. 观察：结果回填上下文</span><br><span class="line"></span><br><span class="line">     messages.append(response)</span><br></pre></td></tr></table></figure>
+
+<p>对应四个标准阶段：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>英文</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>感知</td>
+<td>Perceive</td>
+<td>获取用户输入、工具返回、环境状态</td>
+</tr>
+<tr>
+<td>推理</td>
+<td>Think &#x2F; Reason</td>
+<td>LLM 结合目标、记忆、工具，决策下一步</td>
+</tr>
+<tr>
+<td>行动</td>
+<td>Act</td>
+<td>调用工具 &#x2F; 执行代码 &#x2F; 操作外部系统</td>
+</tr>
+<tr>
+<td>观察</td>
+<td>Observe</td>
+<td>捕获执行结果，写回上下文，进入下一轮</td>
+</tr>
+</tbody></table>
+<h3 id="1-3-两个必须有的控制件"><a href="#1-3-两个必须有的控制件" class="headerlink" title="1.3 两个必须有的控制件"></a>1.3 两个必须有的控制件</h3><ul>
+<li><strong>停止条件（Stopping Conditions）</strong>：任务完成只是理想终止方式；生产系统必须额外设置硬边界，如<strong>最大迭代次数</strong>、Token &#x2F; 成本预算、超时（Anthropic 原文明确建议 “include stopping conditions, such as a maximum number of iterations, to maintain control”）。</li>
+<li><strong>环境真值（Ground Truth）</strong>：每一步都要从环境获得真实反馈（工具结果、代码执行输出、测试结果）来判断进展，而不是让模型 “凭感觉” 宣布完成。</li>
+</ul>
+<hr>
+<h2 id="二、概念边界：Agent、Workflow-与-Chatbot"><a href="#二、概念边界：Agent、Workflow-与-Chatbot" class="headerlink" title="二、概念边界：Agent、Workflow 与 Chatbot"></a>二、概念边界：Agent、Workflow 与 Chatbot</h2><h3 id="2-1-Anthropic-的权威划分：Workflows-vs-Agents"><a href="#2-1-Anthropic-的权威划分：Workflows-vs-Agents" class="headerlink" title="2.1 Anthropic 的权威划分：Workflows vs Agents"></a>2.1 Anthropic 的权威划分：Workflows vs Agents</h3><p>Anthropic 把所有 LLM 智能系统统称为 <strong>agentic systems（智能体系统）</strong>，但在架构上明确区分两类：</p>
+<ul>
+<li><strong>Workflows（工作流）</strong>：LLM 和工具按<strong>预定义的代码路径</strong>被编排，流程走向由开发者写死。</li>
+<li><strong>Agents（智能体）</strong>：LLM <strong>动态地自主决定</strong>流程和工具使用，自己掌控 “如何完成任务”。</li>
+</ul>
+<p>判定一个系统是不是真正的 Agent Loop，关键看</p>
+<p><strong>下一步的控制权在谁手里</strong></p>
+<p>：在 LLM 手里（动态决策）才是 Agent；在开发者代码手里（固定路径）则是 Workflow。</p>
+<h3 id="2-2-三者对比"><a href="#2-2-三者对比" class="headerlink" title="2.2 三者对比"></a>2.2 三者对比</h3><table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>传统 Chatbot</th>
+<th>Workflow</th>
+<th>Agent（Agent Loop）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>执行路径</td>
+<td>单轮问→答</td>
+<td>开发者预定义、固定</td>
+<td>LLM 动态决定、不可预先枚举</td>
+</tr>
+<tr>
+<td>工具使用</td>
+<td>无或单次</td>
+<td>按固定节点调用</td>
+<td>自主选择、可多轮组合</td>
+</tr>
+<tr>
+<td>反馈闭环</td>
+<td>无</td>
+<td>可有 gate 校验</td>
+<td>每步基于环境反馈迭代</td>
+</tr>
+<tr>
+<td>适用任务</td>
+<td>闲聊、问答</td>
+<td>定义清晰、步骤固定</td>
+<td>开放式、步数不可预测</td>
+</tr>
+<tr>
+<td>代价</td>
+<td>低延迟低成本</td>
+<td>可预测、一致性好</td>
+<td>延迟 &#x2F; 成本更高，错误可能复合累积</td>
+</tr>
+</tbody></table>
+<p>Anthropic 的核心建议：<strong>从最简单的方案开始，只在可证明有收益时才增加复杂度</strong>—— 很多场景单次 LLM 调用 + 检索 + 示例就足够，不必上 Agent。</p>
+<hr>
+<h2 id="三、演进脉络：从-ReAct-到-Loop-Engineering"><a href="#三、演进脉络：从-ReAct-到-Loop-Engineering" class="headerlink" title="三、演进脉络：从 ReAct 到 Loop Engineering"></a>三、演进脉络：从 ReAct 到 Loop Engineering</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">2022.10  ReAct 论文（Yao et al., Princeton/Google）奠定 Thought→Action→Observation 的单循环范式</span><br><span class="line"></span><br><span class="line">          │</span><br><span class="line"></span><br><span class="line">2024.12  Anthropic《Building Effective Agents》总结 augmented LLM + 5 种 Workflow + 自主 Agent 的模式谱系</span><br><span class="line"></span><br><span class="line">          │</span><br><span class="line"></span><br><span class="line">2025.07  Geoffrey Huntley 提出 &quot;Ralph&quot; 技术用外层循环驱动长任务、状态外置到文件，是&quot;外层循环&quot;的朴素范例</span><br><span class="line"></span><br><span class="line">          │</span><br><span class="line"></span><br><span class="line">2026.06  swyx（Latent Space）提出 &quot;Loopcraft：堆叠循环的艺术&quot;</span><br><span class="line"></span><br><span class="line">2026.06  LangChain《The Art of Loop Engineering》形式化&quot;四层嵌套循环&quot;行业范式从 Prompt Engineering 转向 Loop Engineering</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-ReAct（2022）——-一切的起点"><a href="#3-1-ReAct（2022）——-一切的起点" class="headerlink" title="3.1 ReAct（2022）—— 一切的起点"></a>3.1 ReAct（2022）—— 一切的起点</h3><ul>
+<li>论文：<em>ReAct: Synergizing Reasoning and Acting in Language Models</em>，Shunyu Yao 等，arXiv:2210.03629，ICLR 2023。</li>
+<li>核心思想：把 ** 推理轨迹（Thought）<strong>和</strong>具体动作（Action）** 交错生成；推理帮助制定 &#x2F; 修正计划、处理异常，动作让模型接入外部知识库与环境获取新信息，Observation 再反哺下一轮推理。</li>
+<li>这就是 L1 Agent Loop 最经典的内部实现形态。</li>
+</ul>
+<h3 id="3-2-Loop-Engineering（2026）——-当前的范式焦点"><a href="#3-2-Loop-Engineering（2026）——-当前的范式焦点" class="headerlink" title="3.2 Loop Engineering（2026）—— 当前的范式焦点"></a>3.2 Loop Engineering（2026）—— 当前的范式焦点</h3><ul>
+<li>背景观点（swyx “Loopcraft”）：不要只优化一个循环，而要<strong>堆叠、嵌套多层循环</strong>来换取可靠性。</li>
+<li>LangChain 将其形式化为四层嵌套结构（见第四章）。</li>
+<li>核心转变：<strong>竞争力不在模型本身，而在你围绕模型搭建的循环与管控框架（Harness）</strong>；行业注意力正从内两层（执行、校验）转向外两层（事件化部署、自我改进），因为价值在外层复利累积。</li>
+</ul>
+<p><strong>Harness（管控框架 &#x2F; 马具）</strong></p>
+<p>：包裹模型的全部工程设施 —— 上下文拼装、工具路由、循环控制、校验、状态管理、重试与安全边界。模型是引擎，Harness 是让引擎可靠工作的整车。</p>
+<hr>
+<h2 id="四、核心结构：四层嵌套循环（LangChain-2026）"><a href="#四、核心结构：四层嵌套循环（LangChain-2026）" class="headerlink" title="四、核心结构：四层嵌套循环（LangChain, 2026）"></a>四、核心结构：四层嵌套循环（LangChain, 2026）</h2><p>这是目前对生产级 Agent 循环体系最清晰的工程化表述。四层<strong>由内向外逐层包裹</strong>：内层是外层的执行单元，外层为内层提供质量保障、规模化接入和自我进化能力。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">┌───────────────────────────────────────────────────────────┐</span><br><span class="line"></span><br><span class="line">│ L4  Hill Climbing Loop（爬坡/自改进循环）                    │</span><br><span class="line"></span><br><span class="line">│  分析生产轨迹(traces) → 反向改写内层 Harness 配置            │</span><br><span class="line"></span><br><span class="line">│  ┌─────────────────────────────────────────────────────┐  │</span><br><span class="line"></span><br><span class="line">│  │ L3  Event Driven Loop（事件驱动循环）                  │  │</span><br><span class="line"></span><br><span class="line">│  │  事件触发(cron/webhook/消息) → 运行 → 更新业务系统      │  │</span><br><span class="line"></span><br><span class="line">│  │  ┌───────────────────────────────────────────────┐  │  │</span><br><span class="line"></span><br><span class="line">│  │  │ L2  Verification Loop（验证循环）               │  │  │</span><br><span class="line"></span><br><span class="line">│  │  │  输出 → Grader 按 rubric 打分 → 不过则带反馈重试 │  │  │</span><br><span class="line"></span><br><span class="line">│  │  │  ┌─────────────────────────────────────────┐  │  │  │</span><br><span class="line"></span><br><span class="line">│  │  │  │ L1  Agent Loop（基础执行循环）            │  │  │  │</span><br><span class="line"></span><br><span class="line">│  │  │  │  request → model ⇄ tools → result        │  │  │  │</span><br><span class="line"></span><br><span class="line">│  │  │  │           (repeat until done)            │  │  │  │</span><br><span class="line"></span><br><span class="line">│  │  │  └─────────────────────────────────────────┘  │  │  │</span><br><span class="line"></span><br><span class="line">│  │  └───────────────────────────────────────────────┘  │  │</span><br><span class="line"></span><br><span class="line">│  └─────────────────────────────────────────────────────┘  │</span><br><span class="line"></span><br><span class="line">└───────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h3 id="L1：Agent-Loop（基础执行循环）——-自动化工作"><a href="#L1：Agent-Loop（基础执行循环）——-自动化工作" class="headerlink" title="L1：Agent Loop（基础执行循环）—— 自动化工作"></a>L1：Agent Loop（基础执行循环）—— 自动化工作</h3><ul>
+<li><strong>逻辑</strong>：模型在循环中调用工具，直到任务完成。<code>request → model ⇄ tools（action / observation）→ repeat until done → result</code>。</li>
+<li><strong>工具（Tools）</strong> 是 Agent 对真实世界采取行动的能力来源。</li>
+<li>LangChain 对应原语：<code>create_agent</code>（任意模型 + 任意工具即得到一个可用循环）。</li>
+<li>文中示例（文档 Agent）：接收文档改进需求 → 模型规划并起草 → 用沙箱工具克隆仓库、读 &#x2F; 写文件 → 提交 Pull Request。</li>
+</ul>
+<h3 id="L2：Verification-Loop（验证循环）——-保障质量"><a href="#L2：Verification-Loop（验证循环）——-保障质量" class="headerlink" title="L2：Verification Loop（验证循环）—— 保障质量"></a>L2：Verification Loop（验证循环）—— 保障质量</h3><ul>
+<li><p><strong>要解决的问题</strong>：L1 能把活干完，但<strong>第一遍不总是正确、不一致</strong>。</p>
+</li>
+<li><p><strong>逻辑</strong>：L1 产出结果后交给 <strong>Grader（评分器）</strong> 按 <strong>rubric（评分标准）</strong> 检查；不通过就<strong>带着具体反馈打回重试</strong>，通过才结束。</p>
+</li>
+<li><p><strong>Grader 两种形态</strong>：</p>
+</li>
+<li><p>确定性校验：如链接是否有效、CI 是否通过、测试是否绿；</p>
+</li>
+<li><p>智能体校验（agentic）：用另一个 LLM 当裁判，即经典的 <strong>LLM-as-a-judge</strong>。</p>
+</li>
+<li><p>LangChain 对应原语：<code>RubricMiddleware</code>，或 <code>create_agent</code> 的 <code>after_agent</code> 钩子。</p>
+</li>
+<li><p><strong>权衡</strong>：验证会增加单次运行的<strong>延迟与成本</strong>；当质量比速度重要时（多数生产场景）值得加。</p>
+</li>
+</ul>
+<h3 id="L3：Event-Driven-Loop（事件驱动循环）——-规模化运行"><a href="#L3：Event-Driven-Loop（事件驱动循环）——-规模化运行" class="headerlink" title="L3：Event Driven Loop（事件驱动循环）—— 规模化运行"></a>L3：Event Driven Loop（事件驱动循环）—— 规模化运行</h3><ul>
+<li><strong>要解决的问题</strong>：把 Agent 从 “手动调用一次的工具” 变成 “融入业务生态、后台常驻的系统组件”。</li>
+<li><strong>逻辑</strong>：事件发生（新文档落地、定时 schedule 触发、webhook 到达、频道来消息）→ 启动内层（L2+L1）运行 → 更新真实系统 → 系统变化又产生新事件。</li>
+<li>LangChain 对应原语：LangSmith Deployment（cron 定时、webhook）、Fleet 的 channels&#x2F;schedules。</li>
+<li>典型形态：”心跳（heartbeats）” 定时任务让 Agent 成为 always-on 的主动助手；Slack <code>#docs-plz</code> 频道一来消息就触发文档 Agent。</li>
+</ul>
+<h3 id="L4：Hill-Climbing-Loop（爬坡-自改进循环）——-让系统越用越好"><a href="#L4：Hill-Climbing-Loop（爬坡-自改进循环）——-让系统越用越好" class="headerlink" title="L4：Hill Climbing Loop（爬坡 &#x2F; 自改进循环）—— 让系统越用越好"></a>L4：Hill Climbing Loop（爬坡 &#x2F; 自改进循环）—— 让系统越用越好</h3><ul>
+<li><strong>要解决的问题</strong>：前三层自动化 “工作”，第四层自动化 “<strong>改进本身</strong>“，是文章认为最重要的一层。</li>
+<li><strong>逻辑</strong>：</li>
+</ul>
+<ol>
+<li>每次内层运行都产生一条 <strong>trace（轨迹）</strong>：模型做了什么、调了哪些工具、Grader 给了什么反馈；</li>
+<li>一个<strong>分析 Agent</strong> 批量分析历史轨迹，定位共性问题；</li>
+<li>直接<strong>改写内层 Harness 配置</strong>（prompt、工具定义、grader 规则等），多条轨迹指向同一问题时就提 issue &#x2F; 变更。</li>
+</ol>
+<ul>
+<li><strong>关键设计</strong>：返回箭头不是简单回到循环顶部，而是<strong>伸进内部直接更新 Agent Loop 本身</strong>—— 外层每转一圈，内层就更强一点，形成复利。</li>
+<li><strong>延伸</strong>：对开源权重模型，轨迹 &#x2F; 评测结果可作为 <strong>RL 微调</strong>信号去优化模型本身；记忆、检索技能等辅助上下文也可用同样方式优化。</li>
+<li>LangChain 对应原语：LangSmith <strong>Engine</strong>（轨迹分析 Agent）。</li>
+</ul>
+<h3 id="四层总览表（对照原文表格）"><a href="#四层总览表（对照原文表格）" class="headerlink" title="四层总览表（对照原文表格）"></a>四层总览表（对照原文表格）</h3><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>名称</th>
+<th>做什么</th>
+<th>价值</th>
+<th>LangChain 原语</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L1</td>
+<td>Agent loop</td>
+<td>模型反复调用工具直到任务完成</td>
+<td>自动化工作</td>
+<td><code>create_agent</code></td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Verification loop</td>
+<td>结果按 rubric 打分，失败带反馈重试</td>
+<td>保证质量与正确性</td>
+<td><code>RubricMiddleware</code></td>
+</tr>
+<tr>
+<td>L3</td>
+<td>Event driven loop</td>
+<td>事件触发 Agent 运行并更新真实系统</td>
+<td>规模化自动化</td>
+<td>LangSmith Deployment（cron&#x2F;webhook）、Fleet channels</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>Hill climbing loop</td>
+<td>用生产轨迹喂分析 Agent，改进 Harness</td>
+<td>自我进化、复利</td>
+<td>LangSmith Engine</td>
+</tr>
+</tbody></table>
+<h3 id="Human-in-the-Loop（人类在环）"><a href="#Human-in-the-Loop（人类在环）" class="headerlink" title="Human in the Loop（人类在环）"></a>Human in the Loop（人类在环）</h3><p>自动化不等于移除人类。原文指出每一层都有人类介入的最佳点，LangChain 把 “人类在环” 作为<strong>一等原语</strong>：</p>
+<ol>
+<li><strong>L1</strong>：敏感动作（金融交易、数据库写操作等）执行前要求人工确认；</li>
+<li><strong>L2</strong>：高敏感工作流由人担任最终 Grader（自动校验能查链接是否有效，但 “表述是否适合目标读者” 需要人的判断）；</li>
+<li><strong>L3 &#x2F; 应用层</strong>：结果返回终端用户前由人审批；</li>
+<li><strong>L4</strong>：Harness 的改进配置经人工审核后再部署。</li>
+</ol>
+<hr>
+<h2 id="五、Agent-Loop-内部的经典范式"><a href="#五、Agent-Loop-内部的经典范式" class="headerlink" title="五、Agent Loop 内部的经典范式"></a>五、Agent Loop 内部的经典范式</h2><p>ReAct、Plan-and-Execute、Reflection </p>
+<p><strong>都属于 Agent Loop（L1 层）的内部组织策略</strong></p>
+<p>，是同一概念下的不同实现，而不是与 Agent Loop 并列的概念。Anthropic 总结的 5 种 Workflow 模式则是 “半固定路径” 的近亲，常与 Agent Loop 组合使用。</p>
+<h3 id="5-1-ReAct（边想边做）"><a href="#5-1-ReAct（边想边做）" class="headerlink" title="5.1 ReAct（边想边做）"></a>5.1 ReAct（边想边做）</h3><ul>
+<li>循环：<strong>Thought → Action → Observation</strong>，每走一步重新决策。</li>
+<li>优点：灵活、对动态环境适应性强、过程可解释。</li>
+<li>短板：长任务容易偏离目标、缺乏全局规划；迭代轮次不可控，Token 成本随轮次线性增长。</li>
+<li>适用：故障排查、工具查询、路径不可预测的短链路任务。</li>
+</ul>
+<h3 id="5-2-Plan-and-Execute（先规划后执行）"><a href="#5-2-Plan-and-Execute（先规划后执行）" class="headerlink" title="5.2 Plan-and-Execute（先规划后执行）"></a>5.2 Plan-and-Execute（先规划后执行）</h3><ul>
+<li>循环：<strong>Plan（全局拆步骤）→ Execute（逐步执行）→ Replan（必要时重规划）→ Synthesize（汇总）</strong>。</li>
+<li>优点：长任务有全局观，执行阶段可减少昂贵 LLM 调用。</li>
+<li>短板：初始计划可能与实际脱节，必须配套重规划机制。</li>
+<li>适用：报告生成、多步骤工程任务等目标明确的长流程。</li>
+</ul>
+<h3 id="5-3-Reflection-Reflexion（反思增强）"><a href="#5-3-Reflection-Reflexion（反思增强）" class="headerlink" title="5.3 Reflection &#x2F; Reflexion（反思增强）"></a>5.3 Reflection &#x2F; Reflexion（反思增强）</h3><ul>
+<li>定位：<strong>不是独立循环，而是可叠加的增强层</strong>（对应 L2 Verification Loop，也对应 Anthropic 的 <strong>Evaluator-optimizer</strong> 模式：一个 LLM 生成、另一个 LLM 评估并给反馈，循环改进）。</li>
+<li>循环：执行 → 自评 &#x2F; 他评 → 发现偏差 → 修正重试。</li>
+<li>适用：代码、翻译、写作等有明确评价标准、迭代打磨有 measurable value 的任务。</li>
+</ul>
+<h3 id="5-4-Anthropic-的-5-种-Workflow-模式（Agent-Loop-的近亲组件）"><a href="#5-4-Anthropic-的-5-种-Workflow-模式（Agent-Loop-的近亲组件）" class="headerlink" title="5.4 Anthropic 的 5 种 Workflow 模式（Agent Loop 的近亲组件）"></a>5.4 Anthropic 的 5 种 Workflow 模式（Agent Loop 的近亲组件）</h3><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>机制</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt chaining</td>
+<td>任务拆成固定串行步骤，中间可加程序化 gate</td>
+<td>先写大纲校验后再写全文；先写文案再翻译</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>先分类，再路由到专门的下游 prompt &#x2F; 模型</td>
+<td>客服分流；简单题走小模型、难题走大模型</td>
+</tr>
+<tr>
+<td>Parallelization</td>
+<td>并行处理后聚合：Sectioning（分片）&#x2F; Voting（多票）</td>
+<td>护栏与主回答并行；多视角代码漏洞审查</td>
+</tr>
+<tr>
+<td>Orchestrator-workers</td>
+<td>中心 LLM 动态拆任务、派发给 worker、再综合</td>
+<td>一次改动多文件的编码；多源检索分析</td>
+</tr>
+<tr>
+<td>Evaluator-optimizer</td>
+<td>生成者 + 评估者在循环中迭代打磨</td>
+<td>文学翻译、多轮检索精炼</td>
+</tr>
+</tbody></table>
+<p><strong>Orchestrator-workers 与 Parallelization 的区别</strong></p>
+<p>（易考点）：拓扑相似，但前者子任务</p>
+<p><strong>无法预先定义</strong></p>
+<p>由 orchestrator 根据输入动态决定，后者的分片是预先确定的。</p>
+<h3 id="5-5-选型原则"><a href="#5-5-选型原则" class="headerlink" title="5.5 选型原则"></a>5.5 选型原则</h3><ul>
+<li>任务短、环境动态、工具多 → <strong>ReAct</strong>；</li>
+<li>任务长、流程可预先拆解 → <strong>Plan-and-Execute</strong>；</li>
+<li>质量要求高、有明确评分标准 → 叠加 <strong>Reflection &#x2F; Verification</strong>；</li>
+<li>子任务可预测 → Workflow 更稳；子任务不可预测、需要模型自主决策 → 才用真正的 Agent Loop；</li>
+<li>生产级系统通常是<strong>混合体</strong>：规划 + 单步 ReAct 执行 + 验证层 + 事件化部署。</li>
+</ul>
+<hr>
+<h2 id="六、生产级-Agent-Loop-的工程要素"><a href="#六、生产级-Agent-Loop-的工程要素" class="headerlink" title="六、生产级 Agent Loop 的工程要素"></a>六、生产级 Agent Loop 的工程要素</h2><h3 id="6-1-上下文与记忆管理"><a href="#6-1-上下文与记忆管理" class="headerlink" title="6.1 上下文与记忆管理"></a>6.1 上下文与记忆管理</h3><ul>
+<li><strong>短期记忆</strong>：当前会话消息流，受上下文窗口限制。</li>
+<li><strong>工作记忆</strong>：当前子目标、已完成 &#x2F; 待办步骤（建议外置为结构化文件或状态存储，而非只靠对话历史）。</li>
+<li><strong>长期记忆</strong>：跨会话的经验与知识，常配合向量检索召回。</li>
+<li><strong>窗口溢出处理手段</strong>：滑动窗口、历史摘要压缩、关键信息（目标 &#x2F; 结论）置顶、冗余工具输出裁剪、非实时信息外置到数据库按需检索。</li>
+<li><strong>长任务的上下文漂移</strong>：多轮之后模型会逐渐 “忘记” 原始目标或质量衰减；工程对策是状态外置、每轮从权威状态文件重新加载（Ralph 类技术的核心思路），并设置特性清单防止 “提前宣布完成”。</li>
+</ul>
+<h3 id="6-2-工具设计与-ACI（Agent-Computer-Interface）"><a href="#6-2-工具设计与-ACI（Agent-Computer-Interface）" class="headerlink" title="6.2 工具设计与 ACI（Agent-Computer Interface）"></a>6.2 工具设计与 ACI（Agent-Computer Interface）</h3><p>Anthropic 强调：要像设计 HCI（人机界面）一样认真设计 <strong>ACI（智能体 - 计算机界面）</strong>，在 SWE-bench Agent 上他们花在打磨工具上的时间比打磨主 prompt 还多：</p>
+<ul>
+<li>工具描述写清用途、边界、参数、示例与边缘情况，相似工具要明确区分；</li>
+<li>选择对模型友好的格式（贴近自然文本、避免繁琐转义 &#x2F; 计数）；</li>
+<li><strong>Poka-yoke（防呆设计）</strong>：从参数层面让模型难以犯错（例：把文件工具从 “相对路径” 改为 “强制绝对路径” 后，模型不再出错）；</li>
+<li>大量测试模型如何使用工具，按错误迭代工具定义。</li>
+</ul>
+<h3 id="6-3-终止、异常与防护"><a href="#6-3-终止、异常与防护" class="headerlink" title="6.3 终止、异常与防护"></a>6.3 终止、异常与防护</h3><ul>
+<li><strong>硬边界</strong>：最大迭代轮数、总 Token &#x2F; 成本预算、总超时，三者缺一不可；</li>
+<li><strong>工具治理</strong>：入参 schema 校验、超时、有限重试（指数退避）、熔断（同一工具连续失败 N 次则暂时禁用并换方案）、幂等性；</li>
+<li><strong>死循环防护</strong>：检测 “相同工具 + 相同参数 + 相同错误” 的重复动作、连续多轮无新增进展（无新信息 &#x2F; 无子任务完成）即强制中断；</li>
+<li><strong>错误信息结构化</strong>：明确告诉模型错在哪、可以怎么换路，而不是只返回 “failed”；</li>
+<li><strong>沙箱与护栏</strong>：Anthropic 建议在沙箱中充分测试，配合权限控制与人工确认点，因为 Agent 的自主性会带来 ** 错误复合累积（compounding errors）** 风险。</li>
+</ul>
+<h3 id="6-4-可观测性与评估"><a href="#6-4-可观测性与评估" class="headerlink" title="6.4 可观测性与评估"></a>6.4 可观测性与评估</h3><ul>
+<li><p>每次运行留存完整 <strong>trace</strong>：每轮推理、工具调用、参数、返回、grader 反馈 —— 这既是排障依据，也是 L4 自改进循环的燃料；</p>
+</li>
+<li><p>核心指标：</p>
+</li>
+<li><p>效果：任务完成率、结果正确率 &#x2F; 评分；</p>
+</li>
+<li><p>效率：平均迭代轮数、端到端耗时、Token 消耗；</p>
+</li>
+<li><p>稳定性：工具成功率、死循环 &#x2F; 异常率；</p>
+</li>
+<li><p>成本：单任务平均成本、有效 Token 占比。</p>
+</li>
+</ul>
+<hr>
+<h2 id="七、常见重点问题与答题要点（面试向）"><a href="#七、常见重点问题与答题要点（面试向）" class="headerlink" title="七、常见重点问题与答题要点（面试向）"></a>七、常见重点问题与答题要点（面试向）</h2><h3 id="A-概念辨析类"><a href="#A-概念辨析类" class="headerlink" title="A. 概念辨析类"></a>A. 概念辨析类</h3><p><strong>Q1：Agent Loop 是什么？它和普通对话的本质区别？</strong></p>
+<ul>
+<li>普通对话是 “输入→输出” 的单轮映射；Agent Loop 是 “推理→行动→观察” 的<strong>带状态闭环</strong>，模型基于环境反馈多轮自主推进，直到目标达成或触发停止条件。</li>
+<li>本质区别在于有没有 “自主行动 + 环境反馈 + 多轮迭代”。</li>
+</ul>
+<p><strong>Q2：ReAct、Plan-and-Execute 属于 Agent Loop 吗？</strong></p>
+<ul>
+<li>属于。它们是 L1 Agent Loop 的<strong>内部实现范式</strong>：ReAct 单步决策、Plan-and-Execute 先规划后执行、Reflection 是叠加的验证增强层；Agent Loop 是上层通用机制。</li>
+</ul>
+<p><strong>Q3：Agent 和 Workflow 的区别？什么场景不该用 Agent？</strong></p>
+<ul>
+<li>按 Anthropic：Workflow 走开发者预定义的固定代码路径，可预测、一致性好；Agent 由 LLM 动态决定路径，灵活但更贵、错误会复合。</li>
+<li>步骤固定、可硬编码的任务用 Workflow；单次 LLM 调用 + 检索就能解决的甚至不需要 agentic 系统；只有开放式、步数不可预测的任务才用 Agent。</li>
+</ul>
+<h3 id="B-架构模式类"><a href="#B-架构模式类" class="headerlink" title="B. 架构模式类"></a>B. 架构模式类</h3><p><strong>Q4：讲一下 LangChain 的四层循环结构。</strong></p>
+<ul>
+<li>L1 Agent Loop（模型调工具完成工作）→ L2 Verification Loop（grader 按 rubric 校验、失败带反馈重试）→ L3 Event Driven Loop（事件触发、后台常驻、更新业务系统）→ L4 Hill Climbing Loop（分析 trace 反向优化内层 harness 配置，实现复利式自改进）。</li>
+<li>亮点：L4 的反馈箭头直接改写内层配置本身；每层都可插入 human-in-the-loop。</li>
+</ul>
+<p><strong>Q5：ReAct &#x2F; Plan-and-Execute &#x2F; Reflection 怎么选型？</strong></p>
+<ul>
+<li>看任务复杂度、流程确定性、质量要求：短而动态选 ReAct；长而可拆解选 Plan-Execute；有明确评分标准就叠加 Reflection；生产环境通常混合使用，并加硬停止边界。</li>
+</ul>
+<p><strong>Q6：Verification Loop 的 Grader 有哪些形态？代价是什么？</strong></p>
+<ul>
+<li>确定性校验（测试、CI、规则）与 agentic 校验（LLM-as-a-judge）；代价是延迟和成本上升，质量优先于速度时值得。注意反馈要具体、可执行，才能让重试有效。</li>
+</ul>
+<p><strong>Q7：Orchestrator-workers 和 Parallelization 有什么区别？</strong></p>
+<ul>
+<li>都是 “一个中心 + 多路执行”，区别在于子任务是否可预先定义：Parallelization 的分片事先固定；Orchestrator-workers 的子任务由中心 LLM 按输入动态生成（如改哪些文件事先不知道）。</li>
+</ul>
+<h3 id="C-工程实战类"><a href="#C-工程实战类" class="headerlink" title="C. 工程实战类"></a>C. 工程实战类</h3><h4 id="Q-如何判定一个任务完成了？"><a href="#Q-如何判定一个任务完成了？" class="headerlink" title="Q : 如何判定一个任务完成了？"></a>Q : 如何判定一个任务完成了？</h4><p><strong>面试一句话答题模板</strong></p>
+<p>“ 我不会让模型自判完成作为依据。判定分四步：先用最大轮数、预算、超时、无进展检测做硬边界保护；模型不再使用工具就是agent认为任务完成（并不代表真正完成了），后面跑客观验收（测试、schema、逐项 feature list 全 passes）；再由独立 grader 或人按 rubric 复核，不通过带反馈重试；全部通过才算成功。关键是区分<strong>保护性终止</strong>和<strong>成功完成</strong>，前者必须显式标记未完成并上报。”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ 1. 是否触发硬边界(轮数/预算/超时/无进展)? │</span><br><span class="line">└─────────────────────────────────────────┘</span><br><span class="line">          │是→ 保护性终止：标记未完成+卡点上报/转人工</span><br><span class="line">          │否</span><br><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ 2. 模型是否自判完成(不再调用工具)?        │</span><br><span class="line">└─────────────────────────────────────────┘</span><br><span class="line">          │否→ 继续下一轮循环</span><br><span class="line">          │是</span><br><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ 3. 客观验收：测试/断言/Feature清单全通过? │</span><br><span class="line">└─────────────────────────────────────────┘</span><br><span class="line">          │否→ 把失败项作为反馈打回，继续循环</span><br><span class="line">          │是</span><br><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ 4. 独立 Grader / 人审 是否通过?          │</span><br><span class="line">└─────────────────────────────────────────┘</span><br><span class="line">          │否→ 带反馈重试</span><br><span class="line">          │是</span><br><span class="line">          ▼</span><br><span class="line">       ✅ 真正完成，交付</span><br></pre></td></tr></table></figure>
+
+<p><strong>Q8：Agent 陷入死循环，如何排查与解决？</strong></p>
+<ul>
+<li>先定位根因：目标模糊导致无法判断终止 &#x2F; 工具报错信息不清引发反复重试 &#x2F; 上下文过长丢失目标和进展 &#x2F; 只靠模型自觉没有硬边界。</li>
+<li>对策：①最大轮数、预算、超时三重硬限制；②重复动作与无进展检测，命中即中断；③错误信息结构化并给出替代路径；④prompt 中显式定义终止条件、要求每轮汇报进展；⑤状态外置防止上下文漂移。</li>
+</ul>
+<p><strong>Q9：上下文窗口爆了怎么办？</strong></p>
+<ul>
+<li>滑动窗口丢弃旧历史；接近阈值时做摘要压缩；目标与关键结论置顶；裁剪冗长的工具返回；把非实时信息外置到存储 &#x2F; 向量库按需检索；长任务采用 “状态写文件、每轮重新加载” 的新鲜上下文模式。</li>
+</ul>
+<p><strong>Q10：模型总是选错工具 &#x2F; 填错参数，怎么优化？</strong></p>
+<ul>
+<li>优化工具描述与示例、划清相似工具边界；schema 强约束输出并在运行时校验；做防呆设计（如强制绝对路径、枚举值收窄）；失败时返回精确的纠错信息；用 workbench 批量观察模型错误并迭代工具（ACI 思路）。</li>
+</ul>
+<p><strong>Q11：如何控制 Agent 的成本？</strong></p>
+<ul>
+<li>硬预算（轮数 &#x2F; Token &#x2F; 金额上限）；模型分级（路由：简单步骤用小模型、关键总结用大模型）；并行工具调用减少串行轮次；缓存重复查询与规划；压缩上下文；无进展提前终止减少空转。</li>
+</ul>
+<p><strong>Q12：工具调用失败如何设计异常处理？</strong></p>
+<ul>
+<li>入参先校验，不合法直接拦截；执行层超时 + 有限次指数退避重试；错误结构化返回原因与建议；同工具连续失败触发熔断、提示模型改走其他路径；写操作保证幂等，避免重试造成重复提交。</li>
+</ul>
+<p><strong>Q13：如何保证长任务 Agent 不 “提前宣布完成”？</strong></p>
+<ul>
+<li>建立特性 &#x2F; 需求清单文件，要求逐项自验证，测试通过后才能标记完成（Anthropic 长任务 harness 实践）；提供一键运行环境脚本降低验证成本；L2 加独立 grader 做客观验收，而不是让执行模型自评。</li>
+</ul>
+<h3 id="D-场景设计类"><a href="#D-场景设计类" class="headerlink" title="D. 场景设计类"></a>D. 场景设计类</h3><p><strong>Q14：设计一个代码修复 Agent，你会怎么搭循环？</strong></p>
+<ul>
+<li>内层用 ReAct（读报错→定位→改→跑测试，环境高度动态）；叠加 L2 Verification（以测试结果作为确定性 grader，不通过带报错重试，必要时加 LLM 评审）；状态用 issue &#x2F; 任务清单 + Git 历史外置；L3 可由 issue&#x2F;PR 事件触发；设置轮数与成本上限、危险操作人工确认；全部 trace 入库供 L4 分析共性问题。</li>
+</ul>
+<p><strong>Q15：多 Agent 系统和单 Agent Loop 是什么关系？</strong></p>
+<ul>
+<li>每个子 Agent 内部仍是自己的 Agent Loop；上层 Orchestrator 循环负责任务拆解、分发、同步、综合（对应 Orchestrator-workers）。避免互相死锁的手段：明确权责边界、标准化消息 &#x2F; 状态协议、中心化调度、跨 Agent 调用超时与全局终止条件。</li>
+</ul>
+<p><strong>Q16：哪些地方必须保留 Human-in-the-loop？</strong></p>
+<ul>
+<li>敏感动作执行前确认（资金、数据库、对外发送）；高风险结果由人担任最终 grader；交付用户前审批；自动生成的 harness&#x2F;prompt 变更上线前审核。原则：自动校验能覆盖 “客观对错”，人的判断负责 “语境、品味与合规”。</li>
+</ul>
+<h3 id="E-评估与趋势类"><a href="#E-评估与趋势类" class="headerlink" title="E. 评估与趋势类"></a>E. 评估与趋势类</h3><p><strong>Q17：怎么评估一个 Agent Loop 的好坏？</strong></p>
+<ul>
+<li>四组指标：效果（完成率、正确率）、效率（平均轮数、耗时、Token）、稳定性（工具成功率、死循环率、异常恢复率）、成本（单任务成本、有效 Token 比）。同时用离线评测集 + 生产 trace 双轨评估。</li>
+</ul>
+<p><strong>Q18：为什么说行业从 Prompt Engineering 转向 Loop Engineering？</strong></p>
+<ul>
+<li>单轮 prompt 有天花板，复杂任务无法一次做对；多层循环用 “执行 — 校验 — 重试 — 自改进” 把可靠性工程化；模型趋于同质化，真正的壁垒在围绕模型的 harness、业务数据沉淀和学习飞轮 ——LangChain 的判断是价值在 L3&#x2F;L4 层复利累积。</li>
+</ul>
+<hr>
+<h2 id="八、关键术语速查表"><a href="#八、关键术语速查表" class="headerlink" title="八、关键术语速查表"></a>八、关键术语速查表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent Loop</td>
+<td>LLM 在 “推理 - 行动 - 观察” 循环中使用工具直至完成的基础机制</td>
+</tr>
+<tr>
+<td>Harness</td>
+<td>包裹模型的全部管控工程（上下文、路由、循环、校验、安全边界）</td>
+</tr>
+<tr>
+<td>ReAct</td>
+<td>Thought→Action→Observation 交错的经典单循环范式（2022）</td>
+</tr>
+<tr>
+<td>Plan-and-Execute</td>
+<td>先全局规划、再分步执行、按需重规划的范式</td>
+</tr>
+<tr>
+<td>Reflection &#x2F; Reflexion</td>
+<td>执行后自评并修正的增强层</td>
+</tr>
+<tr>
+<td>Grader &#x2F; Rubric</td>
+<td>验证循环中的评分器与其评分标准</td>
+</tr>
+<tr>
+<td>LLM-as-a-judge</td>
+<td>用另一个 LLM 充当评审的 agentic 校验方式</td>
+</tr>
+<tr>
+<td>Trace</td>
+<td>一次运行的完整轨迹记录（推理、工具、反馈），是排障与自改进的燃料</td>
+</tr>
+<tr>
+<td>Hill Climbing Loop</td>
+<td>基于 trace 自动改写内层 harness 的自改进外循环</td>
+</tr>
+<tr>
+<td>ACI</td>
+<td>Agent-Computer Interface，智能体 - 工具界面，类比人机界面 HCI</td>
+</tr>
+<tr>
+<td>Poka-yoke</td>
+<td>防呆设计，从接口层面让模型难以犯错</td>
+</tr>
+<tr>
+<td>Ground Truth</td>
+<td>每步从环境获取的真实反馈，用于判断真实进展</td>
+</tr>
+<tr>
+<td>Compounding Errors</td>
+<td>Agent 自主多步执行中错误逐级放大的风险</td>
+</tr>
+<tr>
+<td>Human in the Loop</td>
+<td>在循环关键节点插入人工确认 &#x2F; 审批</td>
+</tr>
+<tr>
+<td>Loopcraft &#x2F; Loop Engineering</td>
+<td>swyx 提出、LangChain 形式化的 “堆叠循环” 工程方法论</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="九、参考资料"><a href="#九、参考资料" class="headerlink" title="九、参考资料"></a>九、参考资料</h2><ol>
+<li>LangChain — <em>The Art of Loop Engineering</em>, Sydney Runkle, 2026-06-16：<a target="_blank" rel="noopener" href="https://www.langchain.com/blog/the-art-of-loop-engineering">https://www.langchain.com/blog/the-art-of-loop-engineering</a></li>
+<li>Anthropic — <em>Building Effective Agents</em>, 2024-12-19：<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/building-effective-agents">https://www.anthropic.com/engineering/building-effective-agents</a></li>
+<li>Yao et al. — <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>, arXiv:2210.03629, ICLR 2023：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a></li>
+<li>Anthropic — <em>Effective harnesses for long-running agents</em>, 2025-11：<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents</a></li>
+<li>Sofokus — Loop engineering 术语表（Ralph 技术出处说明）：<a target="_blank" rel="noopener" href="https://www.sofokus.com/ai-glossary/loop-engineering/">https://www.sofokus.com/ai-glossary/loop-engineering/</a></li>
+<li>Arize — <em>What is a loop in AI engineering, anyway?</em>（Loopcraft 分层解读）：<a target="_blank" rel="noopener" href="https://arize.com/blog/what-is-a-loop-in-ai-engineering-anyway/">https://arize.com/blog/what-is-a-loop-in-ai-engineering-anyway/</a></li>
+</ol>
+<p>说明：文中所有模式定义、四层结构与原语名称均以上述一手资料为准；工程实践部分（死循环防护、成本控制等）为业界通用落地经验的归纳。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://qiaoxin6.github.io">Jo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://qiaoxin6.github.io/2026/09/01/Agent%20Loop%20%E7%9F%A5%E8%AF%86%E6%89%8B%E5%86%8C%EF%BC%9A%E6%A6%82%E5%BF%B5%E3%80%81%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98/">https://qiaoxin6.github.io/2026/09/01/Agent%20Loop%20%E7%9F%A5%E8%AF%86%E6%89%8B%E5%86%8C%EF%BC%9A%E6%A6%82%E5%BF%B5%E3%80%81%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://qiaoxin6.github.io" target="_blank">JOJO</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/agent/">agent</a><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/tags/Agent-Loop/">Agent Loop</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/" title="上下文治理学习手册（Context Engineering &amp; Governance Handbook）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">上下文治理学习手册（Context Engineering & Governance Handbook）</div></div><div class="info-2"><div class="info-item-1">上下文治理学习手册（Context Engineering &amp; Governance Handbook）这是一份可以从头读到尾、边读边动手的自学手册面向有工程背景、正在设计或维护 LLM Agent 的读者。全文 5 Part &#x2F; 16 模块，材料截至 2026-09。  0. 开篇：先建立正确的心智模型0.1 为什么”上下文”突然成了一门学问2023 年大家关心的是”怎么把一句 prompt 写好”（Prompt Engineering）。到了 Agent 时代，模型不再一问一答，而是在一个 Agent Loop（智能体循环） 里反复工作： 1读取上下文 → 模型推理 → 决定调用工具 → 工具返回结果 → 结果追加进上下文 → 再推理 → ……  关键事实是：每一轮，模型都要把”到目前为止的全部输入”重新读一遍。系统指令、工具定义、历史对话、工具返回、检索文档、长期记忆……全部拼在一起，重新过一次模型。于是问题从”一句话怎么写”变成了：  这一轮窗口里到底该放什么、不放什么？ 信息越来越多、窗口快满了，该删什么、怎么压？ 哪些放前面、哪些放后面，模型才看得进...</div></div></div></a><a class="pagination-related" href="/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/" title="RAG 增量更新"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">RAG 增量更新</div></div><div class="info-2"><div class="info-item-1">在面试中除了回答基础的rag的整体流程外还有关于rag的许多优化或使用问题。 其中更新就是最重要的一个点，在实际使用中rag中的知识不可能是不变的，…… 核心原则：以文档id作为主键做原子替换，chuck永远是文档的派生数据。 永远不要只更新变化的chuck ，那是万恶之源。    1.数模型数设计12345678910111213141516171819202122232425262728-- 文档表：唯一真相来源CREATE TABLE documents (  doc_id      VARCHAR PRIMARY KEY,   -- 文档唯一ID（如 飞书file_token / URL hash）  title       VARCHAR,  source      VARCHAR,               -- 来源：feishu/confluence/upload  source_url  VARCHAR,  version     INT,                   -- 版本号，每次修改 +1  status      VARCHAR,      ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&%20Governance%20Handbook%EF%BC%89/" title="上下文治理学习手册（Context Engineering &amp; Governance Handbook）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-02</div><div class="info-item-2">上下文治理学习手册（Context Engineering &amp; Governance Handbook）</div></div><div class="info-2"><div class="info-item-1">上下文治理学习手册（Context Engineering &amp; Governance Handbook）这是一份可以从头读到尾、边读边动手的自学手册面向有工程背景、正在设计或维护 LLM Agent 的读者。全文 5 Part &#x2F; 16 模块，材料截至 2026-09。  0. 开篇：先建立正确的心智模型0.1 为什么”上下文”突然成了一门学问2023 年大家关心的是”怎么把一句 prompt 写好”（Prompt Engineering）。到了 Agent 时代，模型不再一问一答，而是在一个 Agent Loop（智能体循环） 里反复工作： 1读取上下文 → 模型推理 → 决定调用工具 → 工具返回结果 → 结果追加进上下文 → 再推理 → ……  关键事实是：每一轮，模型都要把”到目前为止的全部输入”重新读一遍。系统指令、工具定义、历史对话、工具返回、检索文档、长期记忆……全部拼在一起，重新过一次模型。于是问题从”一句话怎么写”变成了：  这一轮窗口里到底该放什么、不放什么？ 信息越来越多、窗口快满了，该删什么、怎么压？ 哪些放前面、哪些放后面，模型才看得进...</div></div></div></a><a class="pagination-related" href="/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/" title="RAG 增量更新"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-09-01</div><div class="info-item-2">RAG 增量更新</div></div><div class="info-2"><div class="info-item-1">在面试中除了回答基础的rag的整体流程外还有关于rag的许多优化或使用问题。 其中更新就是最重要的一个点，在实际使用中rag中的知识不可能是不变的，…… 核心原则：以文档id作为主键做原子替换，chuck永远是文档的派生数据。 永远不要只更新变化的chuck ，那是万恶之源。    1.数模型数设计12345678910111213141516171819202122232425262728-- 文档表：唯一真相来源CREATE TABLE documents (  doc_id      VARCHAR PRIMARY KEY,   -- 文档唯一ID（如 飞书file_token / URL hash）  title       VARCHAR,  source      VARCHAR,               -- 来源：feishu/confluence/upload  source_url  VARCHAR,  version     INT,                   -- 版本号，每次修改 +1  status      VARCHAR,      ...</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="giscus-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Jo</div><div class="author-info-description">Jo 的个人博客，记录技术学习与生活思考</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-Agent-Loop"><span class="toc-number">2.</span> <span class="toc-text">一、什么是 Agent Loop</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%AE%9A%E4%B9%89"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E6%9C%80%E5%B0%8F%E9%97%AD%E7%8E%AF"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 最小闭环</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E4%B8%A4%E4%B8%AA%E5%BF%85%E9%A1%BB%E6%9C%89%E7%9A%84%E6%8E%A7%E5%88%B6%E4%BB%B6"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 两个必须有的控制件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%A6%82%E5%BF%B5%E8%BE%B9%E7%95%8C%EF%BC%9AAgent%E3%80%81Workflow-%E4%B8%8E-Chatbot"><span class="toc-number">3.</span> <span class="toc-text">二、概念边界：Agent、Workflow 与 Chatbot</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Anthropic-%E7%9A%84%E6%9D%83%E5%A8%81%E5%88%92%E5%88%86%EF%BC%9AWorkflows-vs-Agents"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 Anthropic 的权威划分：Workflows vs Agents</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%89%E8%80%85%E5%AF%B9%E6%AF%94"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 三者对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%94%E8%BF%9B%E8%84%89%E7%BB%9C%EF%BC%9A%E4%BB%8E-ReAct-%E5%88%B0-Loop-Engineering"><span class="toc-number">4.</span> <span class="toc-text">三、演进脉络：从 ReAct 到 Loop Engineering</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-ReAct%EF%BC%882022%EF%BC%89%E2%80%94%E2%80%94-%E4%B8%80%E5%88%87%E7%9A%84%E8%B5%B7%E7%82%B9"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 ReAct（2022）—— 一切的起点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Loop-Engineering%EF%BC%882026%EF%BC%89%E2%80%94%E2%80%94-%E5%BD%93%E5%89%8D%E7%9A%84%E8%8C%83%E5%BC%8F%E7%84%A6%E7%82%B9"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 Loop Engineering（2026）—— 当前的范式焦点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84%EF%BC%9A%E5%9B%9B%E5%B1%82%E5%B5%8C%E5%A5%97%E5%BE%AA%E7%8E%AF%EF%BC%88LangChain-2026%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">四、核心结构：四层嵌套循环（LangChain, 2026）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#L1%EF%BC%9AAgent-Loop%EF%BC%88%E5%9F%BA%E7%A1%80%E6%89%A7%E8%A1%8C%E5%BE%AA%E7%8E%AF%EF%BC%89%E2%80%94%E2%80%94-%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B7%A5%E4%BD%9C"><span class="toc-number">5.1.</span> <span class="toc-text">L1：Agent Loop（基础执行循环）—— 自动化工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#L2%EF%BC%9AVerification-Loop%EF%BC%88%E9%AA%8C%E8%AF%81%E5%BE%AA%E7%8E%AF%EF%BC%89%E2%80%94%E2%80%94-%E4%BF%9D%E9%9A%9C%E8%B4%A8%E9%87%8F"><span class="toc-number">5.2.</span> <span class="toc-text">L2：Verification Loop（验证循环）—— 保障质量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#L3%EF%BC%9AEvent-Driven-Loop%EF%BC%88%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E5%BE%AA%E7%8E%AF%EF%BC%89%E2%80%94%E2%80%94-%E8%A7%84%E6%A8%A1%E5%8C%96%E8%BF%90%E8%A1%8C"><span class="toc-number">5.3.</span> <span class="toc-text">L3：Event Driven Loop（事件驱动循环）—— 规模化运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#L4%EF%BC%9AHill-Climbing-Loop%EF%BC%88%E7%88%AC%E5%9D%A1-%E8%87%AA%E6%94%B9%E8%BF%9B%E5%BE%AA%E7%8E%AF%EF%BC%89%E2%80%94%E2%80%94-%E8%AE%A9%E7%B3%BB%E7%BB%9F%E8%B6%8A%E7%94%A8%E8%B6%8A%E5%A5%BD"><span class="toc-number">5.4.</span> <span class="toc-text">L4：Hill Climbing Loop（爬坡 &#x2F; 自改进循环）—— 让系统越用越好</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E5%B1%82%E6%80%BB%E8%A7%88%E8%A1%A8%EF%BC%88%E5%AF%B9%E7%85%A7%E5%8E%9F%E6%96%87%E8%A1%A8%E6%A0%BC%EF%BC%89"><span class="toc-number">5.5.</span> <span class="toc-text">四层总览表（对照原文表格）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Human-in-the-Loop%EF%BC%88%E4%BA%BA%E7%B1%BB%E5%9C%A8%E7%8E%AF%EF%BC%89"><span class="toc-number">5.6.</span> <span class="toc-text">Human in the Loop（人类在环）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81Agent-Loop-%E5%86%85%E9%83%A8%E7%9A%84%E7%BB%8F%E5%85%B8%E8%8C%83%E5%BC%8F"><span class="toc-number">6.</span> <span class="toc-text">五、Agent Loop 内部的经典范式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-ReAct%EF%BC%88%E8%BE%B9%E6%83%B3%E8%BE%B9%E5%81%9A%EF%BC%89"><span class="toc-number">6.1.</span> <span class="toc-text">5.1 ReAct（边想边做）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Plan-and-Execute%EF%BC%88%E5%85%88%E8%A7%84%E5%88%92%E5%90%8E%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">6.2.</span> <span class="toc-text">5.2 Plan-and-Execute（先规划后执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Reflection-Reflexion%EF%BC%88%E5%8F%8D%E6%80%9D%E5%A2%9E%E5%BC%BA%EF%BC%89"><span class="toc-number">6.3.</span> <span class="toc-text">5.3 Reflection &#x2F; Reflexion（反思增强）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-Anthropic-%E7%9A%84-5-%E7%A7%8D-Workflow-%E6%A8%A1%E5%BC%8F%EF%BC%88Agent-Loop-%E7%9A%84%E8%BF%91%E4%BA%B2%E7%BB%84%E4%BB%B6%EF%BC%89"><span class="toc-number">6.4.</span> <span class="toc-text">5.4 Anthropic 的 5 种 Workflow 模式（Agent Loop 的近亲组件）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-5-%E9%80%89%E5%9E%8B%E5%8E%9F%E5%88%99"><span class="toc-number">6.5.</span> <span class="toc-text">5.5 选型原则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%94%9F%E4%BA%A7%E7%BA%A7-Agent-Loop-%E7%9A%84%E5%B7%A5%E7%A8%8B%E8%A6%81%E7%B4%A0"><span class="toc-number">7.</span> <span class="toc-text">六、生产级 Agent Loop 的工程要素</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%8E%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86"><span class="toc-number">7.1.</span> <span class="toc-text">6.1 上下文与记忆管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%B7%A5%E5%85%B7%E8%AE%BE%E8%AE%A1%E4%B8%8E-ACI%EF%BC%88Agent-Computer-Interface%EF%BC%89"><span class="toc-number">7.2.</span> <span class="toc-text">6.2 工具设计与 ACI（Agent-Computer Interface）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E7%BB%88%E6%AD%A2%E3%80%81%E5%BC%82%E5%B8%B8%E4%B8%8E%E9%98%B2%E6%8A%A4"><span class="toc-number">7.3.</span> <span class="toc-text">6.3 终止、异常与防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%B8%8E%E8%AF%84%E4%BC%B0"><span class="toc-number">7.4.</span> <span class="toc-text">6.4 可观测性与评估</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%B8%B8%E8%A7%81%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98%E4%B8%8E%E7%AD%94%E9%A2%98%E8%A6%81%E7%82%B9%EF%BC%88%E9%9D%A2%E8%AF%95%E5%90%91%EF%BC%89"><span class="toc-number">8.</span> <span class="toc-text">七、常见重点问题与答题要点（面试向）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#A-%E6%A6%82%E5%BF%B5%E8%BE%A8%E6%9E%90%E7%B1%BB"><span class="toc-number">8.1.</span> <span class="toc-text">A. 概念辨析类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#B-%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F%E7%B1%BB"><span class="toc-number">8.2.</span> <span class="toc-text">B. 架构模式类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C-%E5%B7%A5%E7%A8%8B%E5%AE%9E%E6%88%98%E7%B1%BB"><span class="toc-number">8.3.</span> <span class="toc-text">C. 工程实战类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E5%A6%82%E4%BD%95%E5%88%A4%E5%AE%9A%E4%B8%80%E4%B8%AA%E4%BB%BB%E5%8A%A1%E5%AE%8C%E6%88%90%E4%BA%86%EF%BC%9F"><span class="toc-number">8.3.1.</span> <span class="toc-text">Q : 如何判定一个任务完成了？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#D-%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1%E7%B1%BB"><span class="toc-number">8.4.</span> <span class="toc-text">D. 场景设计类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#E-%E8%AF%84%E4%BC%B0%E4%B8%8E%E8%B6%8B%E5%8A%BF%E7%B1%BB"><span class="toc-number">8.5.</span> <span class="toc-text">E. 评估与趋势类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%85%B3%E9%94%AE%E6%9C%AF%E8%AF%AD%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="toc-number">9.</span> <span class="toc-text">八、关键术语速查表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">10.</span> <span class="toc-text">九、参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/11/hello-world/" title="Hello World">Hello World</a><time datetime="2026-09-11T13:22:00.634Z" title="发表于 2026-09-11 21:22:00">2026-09-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/01/Agent%20Loop%20%E7%9F%A5%E8%AF%86%E6%89%8B%E5%86%8C%EF%BC%9A%E6%A6%82%E5%BF%B5%E3%80%81%E7%BB%93%E6%9E%84%E4%B8%8E%E9%87%8D%E7%82%B9%E9%97%AE%E9%A2%98/" title="Agent Loop 知识手册：概念、结构与重点问题">Agent Loop 知识手册：概念、结构与重点问题</a><time datetime="2026-09-01T16:04:27.000Z" title="发表于 2026-09-02 00:04:27">2026-09-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/" title="上下文治理学习手册（Context Engineering &amp; Governance Handbook）">上下文治理学习手册（Context Engineering &amp; Governance Handbook）</a><time datetime="2026-09-01T16:04:27.000Z" title="发表于 2026-09-02 00:04:27">2026-09-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/01/RAG%E5%A2%9E%E9%87%8F%E6%9B%B4%E6%96%B0/" title="RAG 增量更新">RAG 增量更新</a><time datetime="2026-09-01T07:25:00.000Z" title="发表于 2026-09-01 15:25:00">2026-09-01</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Jo</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = {"data-lang":"zh-CN","data-input-position":"bottom"}
+
+  const getGiscusTheme = theme => theme === 'dark' ? 'dark' : 'light'
+
+  const createScriptElement = config => {
+    const ele = document.createElement('script')
+    Object.entries(config).forEach(([key, value]) => {
+      ele.setAttribute(key, value)
+    })
+    return ele
+  }
+
+  const loadGiscus = (el = document, key) => {
+    const mappingConfig = isShuoshuo
+      ? { 'data-mapping': 'specific', 'data-term': key }
+      : { 'data-mapping': (option && option['data-mapping']) || 'pathname' }
+
+    const giscusConfig = {
+      src: 'https://giscus.app/client.js',
+      'data-repo': 'qiaoxin6/qiaoxin6.github.io',
+      'data-repo-id': 'R_kgDOUI258Q',
+      'data-category-id': 'DIC_kwDOUI258c4DEpCf',
+      'data-theme': getGiscusTheme(document.documentElement.getAttribute('data-theme')),
+      'data-reactions-enabled': '1',
+      crossorigin: 'anonymous',
+      async: true,
+      ...option,
+      ...mappingConfig
+    }
+
+    const scriptElement = createScriptElement(giscusConfig)
+
+    el.querySelector('#giscus-wrap').appendChild(scriptElement)
+
+    if (isShuoshuo) {
+      window.shuoshuoComment.destroyGiscus = () => {
+        if (el.children.length) {
+          el.innerHTML = ''
+          el.classList.add('no-comment')
+        }
+      }
+    }
+  }
+
+  const changeGiscusTheme = theme => {
+    const iframe = document.querySelector('#giscus-wrap iframe')
+    if (iframe) {
+      const message = {
+        giscus: {
+          setConfig: {
+            theme: getGiscusTheme(theme)
+          }
+        }
+      }
+      iframe.contentWindow.postMessage(message, 'https://giscus.app')
+    }
+  }
+
+  btf.addGlobalFn('themeChange', changeGiscusTheme, 'giscus')
+
+  if (isShuoshuo) {
+    'Giscus' === 'Giscus'
+      ? window.shuoshuoComment = { loadComment: loadGiscus }
+      : window.loadOtherComment = loadGiscus
+    return
+  }
+
+  if ('Giscus' === 'Giscus' || !false) {
+    if (false) btf.loadComment(document.getElementById('giscus-wrap'), loadGiscus)
+    else loadGiscus()
+  } else {
+    window.loadOtherComment = loadGiscus
+  }
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
