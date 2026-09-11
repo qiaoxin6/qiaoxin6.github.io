@@ -1,5 +1,5 @@
 ---
-title: 上下文治理学习手册（Context Engineering & Governance Handbook）.md
+title: 上下文治理学习手册（Context Engineering & Governance Handbook）
 date: 2026-09-02 00:04:27
 tags:
   - agent
