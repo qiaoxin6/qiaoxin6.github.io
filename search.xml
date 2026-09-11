@@ -707,6 +707,136 @@ More info: Deployment
 ]]></content>
   </entry>
   <entry>
+    <title>multi-agent</title>
+    <url>/2026/09/11/multi-agent/</url>
+    <content><![CDATA[1.什么是多agent
+ 把一个复杂任务拆解为多个模块，各个agent分工完成任务。 但是要承担翻倍的token，agent的协调成本，时间成本。 理论上多agent不是更高级的架构，单agent可以解决就用单agent。
+2.什么时候用多agent
+
+当前任务太复杂，会导致上下文塞满。 需要不同任务单独上下文
+长任务分为多步完成，单agent处理多个任务出现质量下降，注意力下降
+任务可以拆分为多步独立的子任务
+
+3.多agent的拓扑结构（agent之间连接的整体结构）
+
+pipeline ： 用于任务之间协作流程固定
+Supervisor  ：一个管理者来控制多个agent工作，接收返回结果汇总处理。 用于下级&lt;7
+Hierarchical  ：多层Supervisor式的结构。 最上层分发任务，逐步分发到最下层。 最下层的结果逐层摘要汇总到顶层
+Network  ：各个agent平等。 最难收敛
+
+4.多agent的协作
+
+sop分工：用于pipeline，各个agent流式按顺序工作
+Debate 辩论：多个agent生成时不可见，各自给出答案然后互相评审并修正自己的答案，多轮辩论后汇总出最终答案。
+voting 投票：多个agent互相独立不可见，生成内容后互相投票。 （效果差，票数多页不代表真的全面）
+critic 评审： 一个agent生成内容，另一个根据规则评审。 不通过可打回（有最大次数）
+Moa 分层聚合：对一个覆盖多个要点的问题，使用多个agent给出答案（提示词可不同，分别侧重不同方向），然后由上层进行修正汇总。 多提案者→逐层聚合，最多3层
+
+5.多agent的通信
+
+
+
+机制
+控制权
+上下文
+典型
+场景
+
+
+
+消息传递
+不变
+各自独立
+AutoGen 群聊 &#x2F;pub-sub
+协商讨论
+
+
+分派 &#x2F; 子 Agent
+上级保留
+子窗隔离、只回摘要
+agent-as-tool、Claude subagents
+研究、并行执行（主力）
+
+
+交接 Handoff
+转移、原 Agent 退出
+带必要上下文给下一棒
+OpenAI Agents SDK
+客服转专家
+
+
+共享黑板
+不变
+共享结构化字段
+LangGraph State、MetaGPT
+多角色协作、产物流转
+
+
+通信时可能出现的问题
+
+
+
+故障
+表现
+对策
+
+
+
+信息丢失 &#x2F; 隐瞒
+交接后关键信息没带到、知道要求却不说
+结构化契约 + 关键字段强制非空
+
+
+并发写冲突
+并行 Agent 同时改共享字段、重复劳动
+字段级所有权 &#x2F; 版本锁；开工先 “认领” 子任务
+
+
+上下文污染
+子 Agent 把整段探索过程回灌，主窗口变脏
+摘要回流 + 指针，主窗只留结论
+
+
+6.可能的问题
+
+任务不停止，每次执行到最大轮次
+时间、token消耗太多
+步骤重复
+agent超出自己的任务范围
+
+7.安全与优化
+
+全局硬上限：Agent 数&#x2F;fan-out 宽度&#x2F;轮数&#x2F;调用数&#x2F;成本&#x2F;墙钟；
+
+重复检测：最近 N 步动作语义相似即打断换策略；
+
+成环检测：handoff 回到已访问节点即拒绝；
+
+等待超时：straggler 超时按部分结果继续或上报，防死锁；
+
+优雅降级：重试（幂等）→ 换模型&#x2F;路径 → 标失败上报，支持从 checkpoint 
+
+终止条件设计：完成+预算+质量，三个维度限制
+
+
+7.可观测
+8.让你设计一个 Deep Research 多 Agent 系统，怎么讲？
+选supervisor 拓扑结构，派 3–5 个研究员（每个再并行调 3+ 工具、先广后深），回流走结构化契约。评审管判断是否补研，终止由主判官决定。
+生成 - 评审循环（Generator–Critic 怎么转）
+Generator 生成 ──▶ Critic 按 rubric 裁决                      │ pass        ──▶ 通过，进入下一步                      │ fail        ──▶ 带「问题清单」打回                      ▼                 Generator 看着反馈改 ──▶ 再评 …        直到 pass，或达到最大打回次数（如 3 次）→ 升级：换强模型 / 转人工
+
+ 评审 &#x3D; “独立角色 + 固定 rubric + 结构化裁决（通过 &#x2F; 打回 + 可执行反馈）+ 有限次循环 + 可升级“  
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>面试</tag>
+        <tag>multi-agent</tag>
+        <tag>上下文工程</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>上下文治理学习手册（Context Engineering &amp; Governance Handbook）</title>
     <url>/2026/09/01/%E4%B8%8B%E6%96%87%E6%B2%BB%E7%90%86%E5%AD%A6%E4%B9%A0%E6%89%8B%E5%86%8C%EF%BC%88Context%20Engineering%20&amp;%20Governance%20Handbook%EF%BC%89/</url>
     <content><![CDATA[上下文治理学习手册（Context Engineering &amp; Governance Handbook）这是一份可以从头读到尾、边读边动手的自学手册面向有工程背景、正在设计或维护 LLM Agent 的读者。全文 5 Part &#x2F; 16 模块，材料截至 2026-09。
